@@ -1,103 +1,105 @@
 -- Date Table
 CREATE TABLE date_dim (
-    date_id INT PRIMARY KEY,
-    day INT CHECK (day BETWEEN 1 AND 31),
-    month INT CHECK (month BETWEEN 1 AND 12),
-    year INT CHECK (year BETWEEN 2000 AND 2050)
+    date_id INTEGER PRIMARY KEY,
+    day INTEGER CHECK (day BETWEEN 1 AND 31),
+    month INTEGER CHECK (month BETWEEN 1 AND 12),
+    year INTEGER CHECK (year BETWEEN 2000 AND 2050)
 );
 
 -- Time Table
 CREATE TABLE time_dim (
-    time_id INT PRIMARY KEY,
-    minute INT CHECK (minute BETWEEN 0 AND 59),
-    hour INT CHECK (hour BETWEEN 0 AND 23)
+    time_id INTEGER PRIMARY KEY,
+    minute INTEGER CHECK (minute BETWEEN 0 AND 59),
+    hour INTEGER CHECK (hour BETWEEN 0 AND 23)
 );
 
 -- Location Table
 CREATE TABLE location (
-    location_id VARCHAR(10) PRIMARY KEY,
-    location VARCHAR(255),
-    landmark VARCHAR(255),
-    road_type VARCHAR(100)
+    location_id TEXT PRIMARY KEY,
+    location TEXT,
+    landmark TEXT,
+    road_type TEXT
 );
 
 -- Asset Table
 CREATE TABLE asset (
-    asset_id VARCHAR(10) PRIMARY KEY,
-    asset_type VARCHAR(100)
+    asset_id TEXT PRIMARY KEY,
+    asset_type TEXT
 );
 
 -- Supervisor Table
 CREATE TABLE supervisor (
-    supervisor_id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    supervisor_id INTEGER PRIMARY KEY,
+    name TEXT
 );
 
 -- Inspector Table
 CREATE TABLE inspector (
-    inspector_id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    inspector_id INTEGER PRIMARY KEY,
+    name TEXT
 );
 
 -- Reported Via Table
 CREATE TABLE reported_via (
-    reported_via_id SERIAL PRIMARY KEY,
-    method VARCHAR(100),
-    agency VARCHAR(100),
-    date_id INT,
-    time_id INT,
+    reported_via_id INTEGER PRIMARY KEY,
+    method TEXT,
+    agency TEXT,
+    date_id INTEGER,
+    time_id INTEGER,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
 );
 
 -- Acknowledgement Table
 CREATE TABLE acknowledgement (
-    acknowledgement_id SERIAL PRIMARY KEY,
-    method VARCHAR(100),
-    date_id INT,
-    time_id INT,
+    acknowledgement_id INTEGER PRIMARY KEY,
+    method TEXT,
+    date_id INTEGER,
+    time_id INTEGER,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
 );
 
 -- LTA Verified By Table
 CREATE TABLE lta_verified_by (
-    lta_verified_by_id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    date_id INT,
+    lta_verified_by_id INTEGER PRIMARY KEY,
+    name TEXT,
+    date_id INTEGER,
     instructions TEXT,
-    wso_no VARCHAR(100), -- stored as string since it's string/int (tbc)
+    wso_no TEXT,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
 );
 
 -- Contractor Acknowledged Received By Table
 CREATE TABLE contractor_acknowledged_received_by (
-    contractor_acknowledged_received_by_id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    date_id INT,
+    contractor_acknowledged_received_by_id INTEGER PRIMARY KEY,
+    name TEXT,
+    date_id INTEGER,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
 );
 
 -- Main Report Table
 CREATE TABLE report (
-    report_id SERIAL PRIMARY KEY,
-    defect_ref_no VARCHAR(100),
-    date_id INT,
-    location_id VARCHAR(10),
-    asset_id VARCHAR(10),
-    supervisor_id INT,
-    inspector_id INT,
-    reported_via_id INT,
-    acknowledgement_id INT,
-    lta_verified_by_id INT,
-    contractor_acknowledged_received_by_id INT,
-    repeated_defect BOOLEAN,
+    report_id INTEGER PRIMARY KEY,
+    defect_ref_no TEXT,
+    date_id INTEGER,
+    time_id INTEGER,
+    location_id TEXT,
+    asset_id TEXT,
+    supervisor_id INTEGER,
+    inspector_id INTEGER,
+    reported_via_id INTEGER,
+    acknowledgement_id INTEGER,
+    lta_verified_by_id INTEGER,
+    contractor_acknowledged_received_by_id INTEGER,
+    repeated_defect INTEGER CHECK (repeated_defect IN (0, 1)),
     description TEXT,
-    quantity INT,
-    measurement INT,
+    quantity INTEGER,
+    measurement INTEGER,
     cause_of_defect TEXT,
     reccomendation TEXT,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
+    FOREIGN KEY (time_id) REFERENCES time_dim(time_id),
     FOREIGN KEY (location_id) REFERENCES location(location_id),
     FOREIGN KEY (asset_id) REFERENCES asset(asset_id),
     FOREIGN KEY (supervisor_id) REFERENCES supervisor(supervisor_id),

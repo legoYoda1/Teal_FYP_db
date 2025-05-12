@@ -14,7 +14,7 @@ CREATE TABLE time_dim (
 );
 
 -- Location Table
-CREATE TABLE location_dim (
+CREATE TABLE location (
     location_id TEXT PRIMARY KEY,
     location TEXT,
     landmark TEXT,
@@ -22,25 +22,25 @@ CREATE TABLE location_dim (
 );
 
 -- Asset Table
-CREATE TABLE asset_dim (
+CREATE TABLE asset (
     asset_id TEXT PRIMARY KEY,
     asset_type TEXT
 );
 
 -- Supervisor Table
-CREATE TABLE supervisor_dim (
+CREATE TABLE supervisor (
     supervisor_id INTEGER PRIMARY KEY,
     name TEXT
 );
 
 -- Inspector Table
-CREATE TABLE inspector_dim (
+CREATE TABLE inspector (
     inspector_id INTEGER PRIMARY KEY,
     name TEXT
 );
 
 -- Reported Via Table
-CREATE TABLE reported_via_dim (
+CREATE TABLE reported_via (
     reported_via_id INTEGER PRIMARY KEY,
     method TEXT,
     agency TEXT,
@@ -51,7 +51,7 @@ CREATE TABLE reported_via_dim (
 );
 
 -- Acknowledgement Table
-CREATE TABLE acknowledgement_dim (
+CREATE TABLE acknowledgement (
     acknowledgement_id INTEGER PRIMARY KEY,
     method TEXT,
     date_id INTEGER,
@@ -61,7 +61,7 @@ CREATE TABLE acknowledgement_dim (
 );
 
 -- LTA Verified By Table
-CREATE TABLE lta_verified_by_dim (
+CREATE TABLE lta_verified_by (
     lta_verified_by_id INTEGER PRIMARY KEY,
     name TEXT,
     date_id INTEGER,
@@ -71,7 +71,7 @@ CREATE TABLE lta_verified_by_dim (
 );
 
 -- Contractor Acknowledged Received By Table
-CREATE TABLE contractor_acknowledged_received_by_dim (
+CREATE TABLE contractor_acknowledged_received_by (
     contractor_acknowledged_received_by_id INTEGER PRIMARY KEY,
     name TEXT,
     date_id INTEGER,
@@ -79,7 +79,7 @@ CREATE TABLE contractor_acknowledged_received_by_dim (
 );
 
 -- Main Report Table
-CREATE TABLE report_fact (
+CREATE TABLE report (
     report_id INTEGER PRIMARY KEY,
     defect_ref_no TEXT,
     date_id INTEGER,

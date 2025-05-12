@@ -9,11 +9,28 @@ from load.loader import load
 
 import sqlite3
 
+#get the current working directory
+current_directory = os.getcwd()
 if __name__ == "__main__":
     
-    conn = sqlite3.connect(r'C:\Projects\DB_report_test2\test.db')
+    conn = sqlite3.connect(os.path.join(current_directory, 'etl', 'test.db'))
     cursor = conn.cursor()
-    
+
+    # create tables
+    # Read SQL queries from an external file
+    with open(os.path.join(current_directory, 'others', 'sql', 'table_creation.sql'), 'r') as sql_file:
+        sql_script = sql_file.read()
+
+    # Execute the SQL script to create tables
+    cursor.executescript(sql_script)
+
+    # Read SQL queries from an external file
+    with open(os.path.join(current_directory, 'others', 'sql', 'date_time_table_insertion.sql'), 'r') as sql_file:
+        sql_script = sql_file.read()
+
+    # Execute the SQL script to create tables
+    cursor.executescript(sql_script)
+
     cursor.execute("DELETE FROM report_fact;")
     cursor.execute("DELETE FROM contractor_acknowledged_received_by_dim;")
     cursor.execute("DELETE FROM lta_verified_by_dim;")
@@ -27,7 +44,7 @@ if __name__ == "__main__":
     conn.close()
 
     # split into batches
-    report_batches_filenames = split_into_batches(report_folder=r'.\others\test_reports_batch')
+    report_batches_filenames = split_into_batches(report_folder=os.path.join(current_directory, 'others', 'test_reports_batch'))
     
     for i, report_batch_filenames in enumerate(report_batches_filenames):
         print(f"-----------------------------------------------------------------------------------------\nBatch {i + 1}:")
@@ -35,7 +52,7 @@ if __name__ == "__main__":
         report_df = transform(report_batch_dataframe=report_df)
         print(report_df)
         
-        report_df.to_csv(r'.\others\report_batch_2.csv', index=False)  
+        report_df.to_csv(os.path.join(current_directory, 'others', 'report_batch_2.csv'), index=False)  
         load(report_df)
         
         print("Batch ETLed")

@@ -13,7 +13,7 @@ import sqlite3
 current_directory = os.getcwd()
 if __name__ == "__main__":
     
-    conn = sqlite3.connect(os.path.join(current_directory, 'etl', 'test.db'))
+    conn = sqlite3.connect(os.path.join(current_directory, 'data', 'test.db'))
     cursor = conn.cursor()
 
     # create tables

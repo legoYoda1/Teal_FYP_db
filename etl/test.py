@@ -6,7 +6,6 @@ from extraction.extractor import extract
 from transformation.transformer import transform
 from load.loader import load, clear_db
 
-
 import sqlite3
 
 

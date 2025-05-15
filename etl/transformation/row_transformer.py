@@ -54,6 +54,16 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
     except Exception as e:
         # print(f"Error: {e}")
         raise
+    try:
+        is_repeated_defect = report_batch_row["Repeated_defect"]
+        if is_repeated_defect == "Yes": 
+            report_batch_row["Repeated_defect"] = 1
+        else:
+            report_batch_row["Repeated_defect"] = 0
+            
+    except Exception as e:
+        # print(f"Error: {e}")
+        raise
 
     try:
         is_repeated_defect = report_batch_row["Repeated_defect"]

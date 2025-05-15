@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historical Report Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dumb.css') }}">
+    <!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+</head>
+<body>
+    <h1>Historical Report Dashboard</h1>
+    <div class="top-right">
+        <a href="/" class="nav-button">custom mode</a>
+    </div>
+    <form method="POST" style="margin-top: 20px;">
+         <!-- Time Interval Dropdown -->
+    <label for="time_interval">Time Interval:</label>
+    <select name="time_interval" id="time_interval" onchange="toggleDateRange(this.value)">
+        <option value="">-- All --</option>
+        <option value="last_7_days">Last 7 Days</option>
+        <option value="last_30_days">Last 30 Days</option>
+        <option value="this_month">This Month</option>
+        <option value="custom">Custom Range</option>
+    </select>
+
+    <!-- Custom Date Range -->
+    <div id="date-range-section" style="display: none;">
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" id="start_date">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" id="end_date">
+    </div>
+    
+        <label for="repeated_defect">Repeated Defect:</label>
+        <select name="repeated_defect" id="repeated_defect">
+            <option value="">-- All --</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
+    
+        <br><br>
+        <button type="submit">Filter Reports</button>
+    </form>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-container">
+        {{ table|safe }}
+    </div>
+
+    <script>
+        function toggleDateRange(value) {
+            const dateSection = document.getElementById('date-range-section');
+            if (value === 'custom') {
+                dateSection.style.display = 'block';
+            } else {
+                dateSection.style.display = 'none';
+            }
+        }
+    </script>    
+
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.data-table').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            pageLength: 50,
+            lengthMenu: [1, 2, 3, 50, 100],
+            scrollX: true,
+            fixedHeader: true
+        });
+    });
+</script>
+</body>
+</html>

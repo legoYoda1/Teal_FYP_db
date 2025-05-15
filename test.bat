@@ -8,4 +8,4 @@ if defined VIRTUAL_ENV (
 call.venv\Scripts\activate
 @REM call where python
 
-call python C:\Projects\PDF_Text_Extraction\etl\test.py
+call python .\etl\test.py

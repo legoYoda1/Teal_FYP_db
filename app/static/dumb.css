@@ -1,0 +1,26 @@
+.dataTables_wrapper {
+    color: #fff;
+}
+
+.dataTables_filter input {
+    background-color: #111;
+    color: #0f0;
+    border: 1px solid #444;
+}
+
+.dataTables_length select {
+    background-color: #111;
+    color: #0f0;
+    border: 1px solid #444;
+}
+
+input[type="date"] {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #444;
+    padding: 5px;
+    width: 100px;
+    margin: 10px;
+    display: inline-flex;
+
+}

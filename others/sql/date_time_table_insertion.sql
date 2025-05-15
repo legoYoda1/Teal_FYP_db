@@ -2,7 +2,7 @@
 WITH RECURSIVE date_series AS (
     SELECT '2000-01-01' AS date
     UNION ALL
-    SELECT date(date, '+1 day')
+    SELECT date(date, '+1 day') 
     FROM date_series
     WHERE date < '2050-12-31'
 )

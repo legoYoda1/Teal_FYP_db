@@ -12,7 +12,7 @@ def load(report_batch_dataframe : pd.DataFrame) -> None:
     pass
 
 def clear_db() -> None:
-    conn = sqlite3.connect(r'C:\Projects\DB_report_test2\test.db')
+    conn = sqlite3.connect(r'.\data\test.db')
     cursor = conn.cursor()
     
     cursor.execute("DELETE FROM report_fact;")

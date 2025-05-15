@@ -7,8 +7,10 @@ if defined VIRTUAL_ENV (
 )
 call.venv\Scripts\activate
 
+REM call flask app
+start cmd /k python .\app\main.py
+
+timeout /t 1 >nul
+
 REM auto-open dashboard on browser
 start http://localhost:5000
-
-REM call flask app
-call python .\app\main.py

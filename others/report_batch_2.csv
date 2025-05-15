@@ -1,4 +1,3 @@
 Defect_ref_no,Date,Repeated_defect,Type_of_road,Location,Landmark,Type_of_asset,Description,Quantity,Measurement,Cause_of_defect,Recommendation,Inspected_by,Supervised_by,Reported_via__method,Reported_via__agency,Reported_via__date,Reported_via__time,Acknowledgement__method,Acknowledgement__date,Acknowledgement__time,Defects_verified_by__name,Defects_verified_by__date,Instructions,WSO_no,Acknowledged_and_received_by__name,Acknowledged_and_received_by__date
-SW2-MAS3-EXT-WK004-047,20220916,1,Major,Tuas Checkpoint,LP 25F,Railing,Railing-Damaged,4,4,Hit By Vehicle,To Replace,John,Joe Mama,DRC,,,,Looking method,,,Steve Jobs,19840101,Instructions stuff,69420,Thomas Ng,20000402
-A,20000101,1,Flat,WWP,LP 2,Flat,ffsafdafasf,1,2,dsfafasdf,jrtyhgf,John1,Tom1,,,,,,,,Jane1,20040202,luyikyjthrgsfd,afsdgshryjtrukti,May1,20040303
-C,20000101,1,Flat,WWP,LP 2,Flat,ffsafdafasf,1,2,dsfafasdf,jrtyhgf,John1,Tom1,,,,,,,,Jane1,20040202,luyikyjthrgsfd,afsdgshryjtrukti,May1,20040303
+A,20000101,0,Flat,WWP,LP 2,Flat,ffsafdafasf,1,2,dsfafasdf,jrtyhgf,John1,Tom1,,,,,,,,Jane1,20040202,luyikyjthrgsfd,afsdgshryjtrukti,May1,20040303
+C,20000101,0,Flat,WWP,LP 2,Flat,ffsafdafasf,1,2,dsfafasdf,jrtyhgf,John1,Tom1,,,,,,,,Jane1,20040202,luyikyjthrgsfd,afsdgshryjtrukti,May1,20040303

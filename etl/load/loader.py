@@ -10,3 +10,19 @@ def load(report_batch_dataframe : pd.DataFrame) -> None:
     report_batch_dataframe = report_batch_dataframe.apply(lambda row: load_report_batch_row(row, cursor=cursor, conn=conn), axis=1)
     conn.close()
     pass
+
+def clear_db() -> None:
+    conn = sqlite3.connect(r'.\data\test.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("DELETE FROM report_fact;")
+    cursor.execute("DELETE FROM contractor_acknowledged_received_by_dim;")
+    cursor.execute("DELETE FROM lta_verified_by_dim;")
+    cursor.execute("DELETE FROM acknowledgement_dim;")
+    cursor.execute("DELETE FROM reported_via_dim;")
+    cursor.execute("DELETE FROM inspector_dim;")
+    cursor.execute("DELETE FROM supervisor_dim;")
+    cursor.execute("DELETE FROM asset_dim;")
+    cursor.execute("DELETE FROM location_dim;")
+    conn.commit()
+    conn.close()

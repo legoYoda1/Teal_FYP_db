@@ -1,0 +1,15 @@
+i have the following table:
+CREATE TABLE location_dim (
+    location_id TEXT PRIMARY KEY,
+    location TEXT,
+    landmark TEXT,
+    road_type TEXT
+);
+
+give me 5 locations in singapore along with its road type
+
+also give me the short form of the locations for me
+
+I want you to create insert statements for the location_dim, with the following rules:
+-each location has multiple rows, with unique landmark values with the combination of strings from "1" to "2" and "A" to "F" concataneted
+-for the location_id, concatanete the lower-cased short form of the location and the landmark

@@ -9,14 +9,12 @@ from load.loader import load, clear_db
 import sqlite3
 
 
-#get the current working directory
-current_directory = os.getcwd()
 if __name__ == "__main__":
 
-    # clear_db()
+    clear_db()
     
     # split into batches
-    report_batches_filenames = split_into_batches(report_folder=os.path.join(current_directory, 'others', 'test_reports_batch'))
+    report_batches_filenames = split_into_batches(report_folder=os.path.join('.', 'others', 'test_reports_batch'))
     
     for i, report_batch_filenames in enumerate(report_batches_filenames):
         print(f"-----------------------------------------------------------------------------------------\nBatch {i + 1}:")
@@ -24,7 +22,7 @@ if __name__ == "__main__":
         report_df = transform(report_batch_dataframe=report_df)
         print(report_df)
         
-        report_df.to_csv(os.path.join(current_directory, 'others', 'report_batch_2.csv'), index=False)  
+        report_df.to_csv(os.path.join('.', 'others', 'report_batch_2.csv'), index=False)  
         load(report_df)
         
         print("Batch ETLed")

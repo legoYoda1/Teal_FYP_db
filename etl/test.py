@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import pymupdf
 
 from extraction.batch_splitter import split_into_batches
@@ -22,10 +23,12 @@ if __name__ == "__main__":
         report_df = transform(report_batch_dataframe=report_df)
         print(report_df)
         
-        report_df.to_csv(os.path.join('.', 'others', 'report_batch_2.csv'), index=False)  
+        # for debuggine
+        report_df.to_csv(os.path.join('.', 'others', 'misc', 'report_batch_2.csv'), index=False)  
         load(report_df)
         
         print("Batch ETLed")
         
     print("\n Done")
+
     

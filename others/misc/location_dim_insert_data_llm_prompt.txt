@@ -13,3 +13,14 @@ also give me the short form of the locations for me
 I want you to create insert statements for the location_dim, with the following rules:
 -each location has multiple rows, with unique landmark values with the combination of strings from "1" to "2" and "A" to "F" concataneted
 -for the location_id, concatanete the lower-cased short form of the location and the landmark
+
+
+
+
+!!!!!!!!!!!!!For report table!!!!!!!!!!!!!!!!!!
+-for all fields containing a date, the format should be 'YYYYMMDD'
+-leave the location, landmark asset and type_of_road fields empty
+-description, recommendation and instruction text should be short
+-Ref_no and WSO should be random 10char string
+-names can be random
+-repeated_defect either 1 or 0

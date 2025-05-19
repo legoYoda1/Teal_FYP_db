@@ -2,7 +2,6 @@ import sqlite3
 import pandas as pd
 
 foreign_key_id = {
-    # 'supervisor_dim' : None
 }
 
 def load_dim(dim : str, fields : tuple, values: tuple, foreign_key_id : dict, cursor : sqlite3.Cursor, conn : None) -> None:

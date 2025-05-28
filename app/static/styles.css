@@ -33,6 +33,11 @@ button {
     padding: 10px 20px;
     border: none;
     cursor: pointer;
+    border-radius: 6px;
+}
+
+#reset-btn {
+    background-color: orange;
 }
 
 .table-container {
@@ -79,5 +84,30 @@ button {
 }
 
 .nav-button:hover {
-    background-color: #0cc;
+    background-color:  rgb(2, 121, 121);
+}
+
+.top-left {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+
+/* Data table style */
+
+.dataTables_wrapper {
+    color: #fff;
+}
+
+.dataTables_filter input {
+    background-color: #111 !important;
+    color: #0f0 !important;
+    border: 1px solid #444 !important;
+}
+
+.dataTables_length select {
+    background-color: #111 !important;
+    color: #0f0 !important;
+    border: 1px solid #444 !important;
 }

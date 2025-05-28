@@ -16,8 +16,9 @@ CREATE TABLE time_dim (
 -- Location Table
 CREATE TABLE location_dim (
     location_id TEXT PRIMARY KEY,
+    zone TEXT, -- zone refers to both region and zone (SW & SW1)
     location TEXT,
-    landmark TEXT,
+    lamppost_id TEXT,
     road_type TEXT
 );
 
@@ -39,45 +40,6 @@ CREATE TABLE inspector_dim (
     name TEXT
 );
 
--- Reported Via Table
-CREATE TABLE reported_via_dim (
-    reported_via_id INTEGER PRIMARY KEY,
-    method TEXT,
-    agency TEXT,
-    date_id INTEGER,
-    time_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
-    FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
-);
-
--- Acknowledgement Table
-CREATE TABLE acknowledgement_dim (
-    acknowledgement_id INTEGER PRIMARY KEY,
-    method TEXT,
-    date_id INTEGER,
-    time_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
-    FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
-);
-
--- LTA Verified By Table
-CREATE TABLE lta_verified_by_dim (
-    lta_verified_by_id INTEGER PRIMARY KEY,
-    name TEXT,
-    date_id INTEGER,
-    instructions TEXT,
-    wso_no TEXT,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
-);
-
--- Contractor Acknowledged Received By Table
-CREATE TABLE contractor_acknowledged_received_by_dim (
-    contractor_acknowledged_received_by_id INTEGER PRIMARY KEY,
-    name TEXT,
-    date_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
-);
-
 -- Main Report Table
 CREATE TABLE report_fact (
     report_id INTEGER PRIMARY KEY,
@@ -88,24 +50,16 @@ CREATE TABLE report_fact (
     asset_id TEXT,
     supervisor_id INTEGER,
     inspector_id INTEGER,
-    reported_via_id INTEGER,
-    acknowledgement_id INTEGER,
-    lta_verified_by_id INTEGER,
-    contractor_acknowledged_received_by_id INTEGER,
     repeated_defect INTEGER CHECK (repeated_defect IN (0, 1)),
     description TEXT,
     quantity INTEGER,
     measurement INTEGER,
     cause_of_defect TEXT,
-    reccomendation TEXT,
+    recommendation TEXT,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
     FOREIGN KEY (time_id) REFERENCES time_dim(time_id),
     FOREIGN KEY (location_id) REFERENCES location_dim(location_id),
     FOREIGN KEY (asset_id) REFERENCES asset_dim(asset_id),
     FOREIGN KEY (supervisor_id) REFERENCES supervisor_dim(supervisor_id),
-    FOREIGN KEY (inspector_id) REFERENCES inspector_dim(inspector_id),
-    FOREIGN KEY (reported_via_id) REFERENCES reported_via_dim(reported_via_id),
-    FOREIGN KEY (acknowledgement_id) REFERENCES acknowledgement_dim(acknowledgement_id),
-    FOREIGN KEY (lta_verified_by_id) REFERENCES lta_verified_by_dim(lta_verified_by_id),
-    FOREIGN KEY (contractor_acknowledged_received_by_id) REFERENCES contractor_acknowledged_received_by_dim(contractor_acknowledged_received_by_id)
+    FOREIGN KEY (inspector_id) REFERENCES inspector_dim(inspector_id)
 );

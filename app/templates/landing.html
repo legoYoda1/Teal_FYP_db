@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historical Report Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+    <h1 id="page-title">Welcome</h1>
+    <div class="top-left">
+        <a href="/report_upload" class="report-button">Upload Report</a>
+    </div>
+
+    <div class="navbar">
+        <h2>Choose Dashboard Style</h3>
+        <a href="/assist" class="nav-button">assisted mode</a>
+        <a href="/custom" class="nav-button">custom mode</a>
+    </div>
+</body>
+</html>

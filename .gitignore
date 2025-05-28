@@ -7,8 +7,11 @@ wheels/
 *.egg-info
 
 # test database 
-data/test.db
+.data/test.db
 
 # Virtual environments
 .venv
 .env
+
+# .vscode
+.vscode

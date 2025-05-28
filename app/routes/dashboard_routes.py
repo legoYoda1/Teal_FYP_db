@@ -1,12 +1,14 @@
-from flask import Flask, render_template, request
+import os
 import sqlite3
-import pandas as pd
 from datetime import datetime, timedelta
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
-DB_PATH = "data/test.db"
+import pandas as pd
+from flask import render_template, request
+from flask import Blueprint, jsonify, current_app
 
-@app.route("/", methods=["GET", "POST"])
+bp = Blueprint('dashboard_routes', __name__)
+
+@bp.route("/", methods=["GET", "POST"])
 def index():
     query = "SELECT * FROM report_fact"
     error = None
@@ -18,7 +20,7 @@ def index():
             error = "Only SELECT statements are allowed."
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(current_app.config["DB_PATH"])
         df = pd.read_sql_query(query, conn)
         conn.close()
         table_html = df.to_html(classes="data-table", index=False)
@@ -28,7 +30,11 @@ def index():
 
     return render_template("index.html", table=table_html, error=error)
 
-@app.route("/dumb", methods=["GET", "POST"])
+@bp.route("/report_upload", methods=["GET", "POST"])
+def report_upload_page():
+    return render_template('report_upload.html')
+
+@bp.route("/assisted", methods=["GET", "POST"])
 def dumb():
     query = "SELECT * FROM report_fact"
     error = None
@@ -72,7 +78,7 @@ def dumb():
             query += " WHERE " + " AND ".join(filters)
 
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(current_app.config["DB_PATH"])
         conn.row_factory = sqlite3.Row
         df = pd.read_sql_query(query, conn, params=params)
         conn.close()
@@ -82,6 +88,3 @@ def dumb():
         error = str(e)
 
     return render_template("dumb.html", table=table_html, error=error)
-
-if __name__ == "__main__":
-    app.run(debug=True)

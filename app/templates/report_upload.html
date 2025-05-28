@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Historical Report Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dumb.css') }}">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <!-- removes favicon error -->
+    <link rel="shortcut icon" href="#" />
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+</head>
+
+<body>
+    <div class="top-right">
+        <a href="/assisted" class="nav-button">dumb mode</a>
+        <a href="/" class="nav-button">home</a>
+    </div>
+
+    <h1>PDF Picker</h1>
+    <button onclick="openDialog()" id="uploadButton">Pick PDF Files</button>
+    <p id="message"></p>
+    <input type="number" id="batch_size_input" step="1" , min="1">
+    <p id="batchDisplay" hidden>Batch: <span id="batchNo"></span>/<span id="totalBatches"></span></p>
+
+
+
+    <script>
+        const socket = io();  // Initialize socket connection here
+
+        function openDialog() {
+            fetch('/open_dialog', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                });;
+        }
+
+        socket.on('dialog_close', function (data) {
+            console.log("dialog_close", data.folder);
+
+            const batch_size = document.getElementById('batch_size_input').value;
+            // displayFolder(data.folder);
+            fetch('/start_etl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ batch_size: parseInt(batch_size) })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                });;
+        });
+
+        function displayFolder(folder) {
+            // console.log("displayFolder called with folder:", folder);
+            document.getElementById('message').textContent = folder
+        }
+
+        socket.on('batch_upload_status_update', function (data) {
+            document.getElementById('batchDisplay').hidden = false;
+
+            console.log("batch_upload_status_update", data);
+            document.getElementById('batchNo').textContent = data.batch_no;
+            document.getElementById('totalBatches').textContent = data.total_batches;
+
+            if (data.batch_no == data.total_batches) {
+                // document.getElementById('batchDisplay').hidden = true;
+                document.getElementById('batchDisplay').hidden = true;
+                document.getElementById('message').innerText = "Upload Complete!";
+            }
+        });
+    </script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 import os
 import pymupdf
-from .form_input import form_input_boundary
+from etl.extraction.form_input import form_input_boundary
 
 def retrieve_input_strings(pdf) -> dict:
     

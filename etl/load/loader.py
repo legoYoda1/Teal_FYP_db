@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from load.row_loader import load_report_batch_row
+from etl.load.row_loader import load_report_batch_row
 
 def load(report_batch_dataframe : pd.DataFrame) -> None:
     

@@ -56,6 +56,7 @@ CREATE TABLE report_fact (
     measurement INTEGER,
     cause_of_defect TEXT,
     recommendation TEXT,
+    report_path TEXT,
     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
     FOREIGN KEY (time_id) REFERENCES time_dim(time_id),
     FOREIGN KEY (location_id) REFERENCES location_dim(location_id),

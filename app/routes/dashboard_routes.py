@@ -37,7 +37,7 @@ def custom():
         conn.close()
 
         if "report_path" in df.columns:
-            df["Report"] = df["report_path"].apply(
+            df["report"] = df["report_path"].apply(
                 lambda x: f'<a href="{url_for("static", filename=f"reports/{x}")}" target="_blank">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
@@ -61,6 +61,7 @@ def dumb():
     start_date = None
     end_date = None
     repeated_defect = None
+    zone = None
     error = None
     filters = []
     params = {}
@@ -105,7 +106,7 @@ def dumb():
 
     if zone:
         params["zone"] = zone
-        filter_clauses.append("zone = :zone")
+        filter_clauses.append("location_id in (SELECT location_id FROM location_dim WHERE zone LIKE '%' || :zone || '%')")
         
 
     # Combine filters into SQL string

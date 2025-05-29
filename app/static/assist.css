@@ -1,0 +1,44 @@
+
+input[type="date"] {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #444;
+    padding: 5px;
+    width: 100px;
+    margin: 10px;
+    display: inline-flex;
+
+}
+
+.quick-queries .query-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.query-button {
+    background-color: cyan;
+    color: black;
+    font-weight: bold;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.query-button:hover {
+    background-color: #00e0e0;
+}
+
+.edit-button {
+    background-color: #333;
+    color: white;
+    border: 1px solid #777;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+

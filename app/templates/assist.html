@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historical Report Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assist.css') }}">
+    <!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+</head>
+<body>
+    <h1>Historical Report Dashboard</h1>
+    <div class="top-right">
+        <a href="/" class="nav-button">home</a>
+    </div>
+    <form method="POST" style="margin-top: 20px;  margin-bottom: 50px;">
+         <!-- Time Interval Dropdown -->
+    <label for="time_interval">Time Interval:</label>
+    <select name="time_interval" id="time_interval" onchange="toggleDateRange(this.value)">
+        <option value="">-- All --</option>
+        <option value="last_7_days">Last 7 Days</option>
+        <option value="last_30_days">Last 30 Days</option>
+        <option value="this_month">This Month</option>
+        <option value="custom">Custom Range</option>
+    </select>
+
+    <!-- Custom Date Range -->
+    <div id="date-range-section" style="display: none;">
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" id="start_date">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" id="end_date">
+    </div>
+    
+        <label for="repeated_defect">Repeated Defect:</label>
+        <select name="repeated_defect" id="repeated_defect">
+            <option value="">-- All --</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
+
+        <label for="zone">Zone:</label>
+        <select name="zone" id="zone">
+            <option value="">-- All --</option>
+            <option value="NE">NE</option>
+            <option value="NW">NW</option>
+            <option value="SE">SE</option>
+            <option value="SW">SW</option>
+        </select>
+    
+        <br><br>
+        <button type="submit">Filter Reports</button>
+    </form>
+
+    <label style="font-size: 1.2em; font-weight: bold;">Quick Queries:</label>
+    <div class="quick-queries" style="display: flexbox;">
+
+    <div class="query-row" style="display: inline-flex;">
+        <form method="POST" class="quick-form">
+            <input type="hidden" name="editable_query" value="SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1">
+            <!-- Include filter values -->
+            <input type="hidden" name="time_interval" id="form_time_interval">
+            <input type="hidden" name="start_date" id="form_start_date">
+            <input type="hidden" name="end_date" id="form_end_date">
+            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
+            <button type="submit" class="query-button">Most Common Defect</button>
+        </form>
+        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1`)">✏️ Edit</button>
+    </div>
+
+    <div class="query-row" style="display: inline-flex;">
+        <form method="POST" class="quick-form">
+            <input type="hidden" name="editable_query" value="SELECT * FROM report_fact WHERE repeated_defect = 1">
+            <!-- Include filter values -->
+            <input type="hidden" name="time_interval" id="form_time_interval">
+            <input type="hidden" name="start_date" id="form_start_date">
+            <input type="hidden" name="end_date" id="form_end_date">
+            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
+            <button type="submit" class="query-button">Repeated Defects</button>
+        </form>
+        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT * FROM report_fact WHERE repeated_defect = 1`)">✏️ Edit</button>
+    </div>
+
+    <div class="query-row" style="display: inline-flex;">
+        <form method="POST" class="quick-form">
+            <input type="hidden" name="editable_query" value="SELECT location_id, COUNT(*) AS defect_count FROM report_fact GROUP BY location_id ORDER BY defect_count DESC;">
+            <!-- Include filter values -->
+            <input type="hidden" name="time_interval" id="form_time_interval">
+            <input type="hidden" name="start_date" id="form_start_date">
+            <input type="hidden" name="end_date" id="form_end_date">
+            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
+            <button type="submit" class="query-button">Defect Location Frequency</button>
+        </form>
+        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT location_id, COUNT(*) AS defect_count FROM report_fact GROUP BY location_id ORDER BY defect_count DESC;`)">✏️ Edit</button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="editorModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeEditor()">&times;</span>
+        <form method="POST">
+            <label for="editable_query">Edit SQL Query:</label><br>
+            <textarea name="editable_query" id="editable_query_input" rows="4" style="width: 100%; font-family: monospace;"></textarea>
+            <br><br>
+            <button type="submit" class="query-button">Run Edited Query</button>
+        </form>
+    </div>
+</div>
+
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-container">
+        {{ table|safe }}
+    </div>
+
+    <script>
+        function toggleDateRange(value) {
+            const dateSection = document.getElementById('date-range-section');
+            if (value === 'custom') {
+                dateSection.style.display = 'block';
+            } else {
+                dateSection.style.display = 'none';
+            }
+        }
+    </script>    
+
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.data-table').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            pageLength: 50,
+            lengthMenu: [5, 10, 25, 50, 100],
+            scrollX: true,
+            fixedHeader: true
+        });
+    });
+</script>
+
+<script>
+    function openEditor(queryText) {
+        const modal = document.getElementById("editorModal");
+        document.getElementById("editable_query_input").value = queryText;
+        modal.style.display = "block";
+    }
+
+    function closeEditor() {
+        document.getElementById("editorModal").style.display = "none";
+    }
+
+    // Optional: Close when clicking outside modal
+    window.onclick = function(event) {
+        const modal = document.getElementById("editorModal");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    document.querySelectorAll(".quick-form").forEach(form => {
+        form.addEventListener("submit", function () {
+            form.querySelector("#form_time_interval").value = document.querySelector("#time_interval").value;
+            form.querySelector("#form_start_date").value = document.querySelector("#start_date").value;
+            form.querySelector("#form_end_date").value = document.querySelector("#end_date").value;
+            form.querySelector("#form_repeated_defect").value = document.querySelector("#repeated_defect").value;
+        });
+    });
+</script>
+</body>
+</html>

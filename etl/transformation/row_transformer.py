@@ -25,9 +25,9 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
     
     # split location and landmark from "Location" key, put landmark in "Landmark"
     try:
-        temp = report_batch_row["Location"].split()
-        report_batch_row["Landmark"] = ' '.join(temp[-2:])
-        report_batch_row["Location"] = ' '.join(temp[:-2])
+        temp = report_batch_row["location"].split()
+        report_batch_row["landmark"] = ' '.join(temp[-2:])
+        report_batch_row["location"] = ' '.join(temp[:-2])
         
     except Exception as e:
         print(f"Error: {e}")
@@ -36,11 +36,7 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
             
     # convert date to date_key format
     try:
-        report_batch_row["Date"] = format_to_date_key(report_batch_row["Date"])
-        report_batch_row["Reported_via__date"] = format_to_date_key(report_batch_row["Reported_via__date"])
-        report_batch_row["Acknowledgement__date"] = format_to_date_key(report_batch_row["Acknowledgement__date"])
-        report_batch_row["Defects_verified_by__date"] = format_to_date_key(report_batch_row["Defects_verified_by__date"])
-        report_batch_row["Acknowledged_and_received_by__date"] = format_to_date_key(report_batch_row["Acknowledged_and_received_by__date"])
+        report_batch_row["date"] = format_to_date_key(report_batch_row["date"])
     except Exception as e:
         print(f"Error: {e}")
         raise
@@ -48,29 +44,29 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
         
     # omit strings(words) from quantity/measurement and convert to int
     try:
-        report_batch_row["Quantity"] = int(*report_batch_row["Quantity"].split()[0])
-        report_batch_row["Measurement"] = int(*report_batch_row["Measurement"].split()[0])
+        report_batch_row["quantity"] = int(*report_batch_row["quantity"].split()[0])
+        report_batch_row["measurement"] = int(*report_batch_row["measurement"].split()[0])
         
     except Exception as e:
         # print(f"Error: {e}")
         raise
     try:
-        is_repeated_defect = report_batch_row["Repeated_defect"]
+        is_repeated_defect = report_batch_row["repeated_defect"]
         if is_repeated_defect == "Yes": 
-            report_batch_row["Repeated_defect"] = 1
+            report_batch_row["repeated_defect"] = 1
         else:
-            report_batch_row["Repeated_defect"] = 0
+            report_batch_row["repeated_defect"] = 0
             
     except Exception as e:
         # print(f"Error: {e}")
         raise
 
     try:
-        is_repeated_defect = report_batch_row["Repeated_defect"]
+        is_repeated_defect = report_batch_row["repeated_defect"]
         if is_repeated_defect == "Yes": 
-            report_batch_row["Repeated_defect"] = 1
+            report_batch_row["repeated_defect"] = 1
         else:
-            report_batch_row["Repeated_defect"] = 0
+            report_batch_row["repeated_defect"] = 0
             
     except Exception as e:
         # print(f"Error: {e}")

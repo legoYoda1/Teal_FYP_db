@@ -1,0 +1,14 @@
+#legend-btn {
+  position: absolute;
+  top: 221px;
+  right: 134px;
+  z-index: 1000;
+  background: none;
+  color: aliceblue;
+
+}
+
+#legend-btn:hover {
+  color: #0f0;
+  cursor: pointer;
+}

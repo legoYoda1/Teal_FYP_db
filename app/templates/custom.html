@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historical Report Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+        <!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <h1>Historical Report Dashboard</h1>
+    <div class="top-right">
+        <a href="/" class="nav-button">home</a>
+    </div>
+    <form method="POST">
+        <textarea name="sql_query" placeholder="Enter your SELECT SQL query here"></textarea><br>
+        <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
+        <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
+    </form>
+
+    <!-- Legend Icon -->
+<button type="button" id="legend-btn" title="View database schema">Legend</button>
+
+<!-- Modal Popup -->
+<div id="legend-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Database Schema</h2>
+        <img src="{{ url_for('static', filename='erd_diagram.svg') }}" alt="ERD Diagram" style="width:100%; max-height: 500px; object-fit: contain;">
+    </div>
+</div>
+
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-container">
+        {{ table|safe }}
+    </div>
+
+    <script>
+document.getElementById("submit-btn").addEventListener("click", function () {
+    document.querySelector("textarea[name='sql_query']").setAttribute("required", "required");
+});
+
+document.getElementById("reset-btn").addEventListener("click", function () {
+    document.querySelector("textarea[name='sql_query']").removeAttribute("required");
+});
+</script>
+
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.data-table').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            pageLength: 50,
+            lengthMenu: [5, 10, 25, 50, 100],
+            scrollX: true,
+            fixedHeader: true
+        });
+    });
+</script>
+
+<!-- Modal Popup Script -->
+ <script>
+document.getElementById("legend-btn").addEventListener("click", function () {
+    document.getElementById("legend-modal").style.display = "block";
+});
+document.querySelector(".close-btn").addEventListener("click", function () {
+    document.getElementById("legend-modal").style.display = "none";
+});
+window.addEventListener("click", function (event) {
+    const modal = document.getElementById("legend-modal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+});
+</script>
+</body>
+</html>

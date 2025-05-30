@@ -75,27 +75,43 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
 
     print("Attempting to load row")
     try:
-        load_dim_non_repeatable_field(report_batch_row['supervised_by'], 'supervisor_dim', 'name', foreign_key_id, cursor, conn)
-        load_dim_non_repeatable_field(report_batch_row['inspected_by'], 'inspector_dim', 'name', foreign_key_id, cursor, conn)
+        load_dim_non_repeatable_field(report_batch_row['Supervised_by'], 'supervisor_dim', 'name', foreign_key_id, cursor, conn)
+        load_dim_non_repeatable_field(report_batch_row['Inspected_by'], 'inspector_dim', 'name', foreign_key_id, cursor, conn)
+
+        # load_dim(dim='reported_via_dim', fields=('method', 'agency', 'date_id', 'time_id'), 
+        #          values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__agency'], 
+        #                  report_batch_row['Reported_via__date'], report_batch_row['Reported_via__time']),
+        #          foreign_key_id=foreign_key_id, 
+        #          cursor=cursor, conn=conn
+        #          )
+        # load_dim(dim='acknowledgement_dim', fields=('method', 'date_id', 'time_id'), 
+        #          values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__date'], 
+        #                  report_batch_row['Reported_via__time']),
+        #          foreign_key_id=foreign_key_id, 
+        #          cursor=cursor, conn=conn
+        #          )
+
 
         # Inserting data into report_fact table
         cursor.execute('''
-            INSERT INTO report_fact (defect_ref_no, date_id, location_id, asset_id, supervisor_id, inspector_id,  
+            INSERT INTO report_fact (defect_ref_no, date_id, location_id, asset_id, supervisor_id, inspector_id, 
             repeated_defect, description, quantity, measurement, cause_of_defect, recommendation) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            report_batch_row['defect_ref_no'], 
-            report_batch_row['date'], 
+            report_batch_row['Defect_ref_no'], 
+            report_batch_row['Date'], 
             location_ids[random.randint(0, len(location_ids)-1)], 
             asset_ids[random.randint(0, len(asset_ids)-1)], 
             foreign_key_id['supervisor_dim'], 
-            foreign_key_id['inspector_dim'],
-            report_batch_row['repeated_defect'], 
-            report_batch_row['description'], 
-            report_batch_row['quantity'], 
-            report_batch_row['measurement'], 
-            report_batch_row['cause_of_defect'], 
-            report_batch_row['recommendation']
+            foreign_key_id['inspector_dim'], 
+            # foreign_key_id['reported_via_dim'], 
+            # foreign_key_id['acknowledgement_dim'],
+            report_batch_row['Repeated_defect'], 
+            report_batch_row['Description'], 
+            report_batch_row['Quantity'], 
+            report_batch_row['Measurement'], 
+            report_batch_row['Cause_of_defect'], 
+            report_batch_row['Recommendation']
         )) 
         
         conn.commit()

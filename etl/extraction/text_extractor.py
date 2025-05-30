@@ -1,6 +1,10 @@
 import os
 import pymupdf
-from etl.extraction.form_input import form_input_boundary
+
+if __name__ != "__main__":
+    from etl.extraction.form_input import form_input_boundary
+else:
+    from extraction.form_input import form_input_boundary   
 
 def retrieve_input_strings(pdf) -> dict:
     

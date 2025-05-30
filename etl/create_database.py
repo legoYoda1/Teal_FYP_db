@@ -18,11 +18,8 @@ def reinit_db():
     conn = sqlite3.connect(os.path.join(current_directory, 'data', 'test.db'))
     cursor = conn.cursor()
     
-    print("Reinitializing database...")
     execute_sql_script('table_deletion', cursor)
-    print("Tables deleted successfully.")
     execute_sql_script('table_creation', cursor)
-    print("Tables created successfully.")
     execute_sql_script('date_time_dim_insertion', cursor)
     execute_sql_script('categorical_dim_insertion', cursor)
     

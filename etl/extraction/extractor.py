@@ -2,8 +2,12 @@ import os
 import pymupdf
 import pandas as pd
 
-from etl.transformation.db_input import db_input_fields
-from etl.extraction.text_extractor import retrieve_input_strings
+if __name__ != "__main__":
+    from etl.transformation.db_input import db_input_fields
+    from etl.extraction.text_extractor import retrieve_input_strings
+else:
+    from transformation.db_input import db_input_fields
+    from extraction.text_extractor import retrieve_input_strings
 
 def extract(report_batch_filenames : list) -> pd.DataFrame:
     # pdfs loaded from report test batch file

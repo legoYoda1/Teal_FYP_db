@@ -118,16 +118,51 @@
         {{ table|safe }}
     </div>
 
-    <script>
-        function toggleDateRange(value) {
-            const dateSection = document.getElementById('date-range-section');
-            if (value === 'custom') {
-                dateSection.style.display = 'block';
-            } else {
-                dateSection.style.display = 'none';
-            }
+    <div class="chart-container">
+        <input type="hidden" id="final-sql-query" value="{{ final_query }}">
+        <button id="show-charts-btn">Show Charts</button>
+        <h2 id="chart-title"></h2>
+        <div class="chart" id="chart-div"></div>
+    </div>
+
+    <!-- Show Charts Button Script -->
+     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+document.getElementById("show-charts-btn").addEventListener("click", function () {
+    const query = document.getElementById("final-sql-query").value;
+
+    fetch("/get_charts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sql_query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("chart-title").innerText = data.title;
+            Plotly.newPlot("chart-div", data.chart.data, data.chart.layout);
+        } else {
+            document.getElementById("chart-div").innerHTML = "<span style='color:red'>" + data.error + "</span>";
         }
-    </script>    
+    })
+    .catch(error => {
+        document.getElementById("chart-div").innerHTML = "<span style='color:red'>Request failed: " + error + "</span>";
+    });
+});
+</script>
+
+
+    <!-- Custom date range toggle script -->
+<script>
+    function toggleDateRange(value) {
+        const dateSection = document.getElementById('date-range-section');
+        if (value === 'custom') {
+            dateSection.style.display = 'block';
+        } else {
+            dateSection.style.display = 'none';
+        }
+    }
+</script>    
 
     <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -140,7 +175,7 @@
             paging: true,
             searching: true,
             ordering: true,
-            pageLength: 50,
+            pageLength: 10,
             lengthMenu: [5, 10, 25, 50, 100],
             scrollX: true,
             fixedHeader: true
@@ -148,6 +183,7 @@
     });
 </script>
 
+<!-- Editable query Script -->
 <script>
     function openEditor(queryText) {
         const modal = document.getElementById("editorModal");

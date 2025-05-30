@@ -5,13 +5,42 @@ from datetime import datetime, timedelta
 import pandas as pd
 from flask import render_template, request, url_for
 from flask import Blueprint, jsonify, current_app
-from app.dashboard_functions import insert_filters
+from app.dashboard_functions import insert_filters, get_chart_suggestions, convert_ndarrays
+import json
+import plotly.express as px
 
 bp = Blueprint('dashboard_routes', __name__)
 
 @bp.route("/")
 def index():
     return render_template("landing.html")
+
+@bp.route("/get_charts", methods=["POST"])
+def get_charts():
+    try:
+        query = request.json.get("sql_query", "SELECT * FROM report_fact")
+        conn = sqlite3.connect(current_app.config["DB_PATH"])
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+
+        suggestion = get_chart_suggestions(df, query)
+
+        # Parse JSON from model
+        parsed = json.loads(suggestion)
+
+        # Dynamically evaluate the code safely
+        local_vars = {"df": df, "px": px}
+        exec(parsed["code"], {}, local_vars)
+        fig = local_vars.get("fig")
+        fig_dict = convert_ndarrays(fig.to_dict())
+
+        return jsonify({"success": True, "title": parsed["title"], "chart": fig_dict})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@bp.route("/report_upload", methods=["GET", "POST"])
+def report_upload_page():
+    return render_template('report_upload.html')
 
 @bp.route("/custom", methods=["GET", "POST"])
 def custom():
@@ -47,11 +76,7 @@ def custom():
         table_html = ""
         error = str(e)
 
-    return render_template("custom.html", table=table_html, error=error)
-
-@bp.route("/report_upload", methods=["GET", "POST"])
-def report_upload_page():
-    return render_template('report_upload.html')
+    return render_template("custom.html", table=table_html, error=error, final_query=query)
 
 @bp.route("/assist", methods=["GET", "POST"])
 def dumb():
@@ -68,7 +93,6 @@ def dumb():
     search_date = None
 
     if request.method == "POST":
-        custom_query = request.form.get("custom_query")
         editable_query = request.form.get("editable_query")
         time_interval = request.form.get("time_interval")
         start_date = request.form.get("start_date", "")
@@ -128,4 +152,4 @@ def dumb():
         table_html = ""
         error = str(e)
 
-    return render_template("assist.html", table=table_html, error=error)
+    return render_template("assist.html", table=table_html, error=error, final_query=query)

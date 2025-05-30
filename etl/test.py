@@ -1,15 +1,22 @@
 import os
+import sqlite3
+import time
+
 import pandas as pd
 import pymupdf
 
-from etl.extraction.batch_splitter import split_into_batches
-from etl.extraction.extractor import extract
-from etl.transformation.transformer import transform
-from etl.load.loader import load, clear_db
+if __name__ != "__main__":
+    from etl.extraction.batch_splitter import split_into_batches
+    from etl.extraction.extractor import extract
+    from etl.load.loader import clear_db, load
+    from etl.transformation.transformer import transform
+else:
+    from extraction.batch_splitter import split_into_batches
+    from extraction.extractor import extract
+    from load.loader import clear_db, load
+    from transformation.transformer import transform
 
-import sqlite3
 
-import time
 
 if __name__ == "__main__":
 
@@ -28,7 +35,6 @@ if __name__ == "__main__":
         report_df.to_csv(os.path.join('.', 'others', 'misc', 'report_batch_2.csv'), index=False)  
         load(report_df)
         
-        time.sleep(0.5) # for debugging
         print("Batch ETLed")
         
     print("\n Done")

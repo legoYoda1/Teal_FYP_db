@@ -7,7 +7,7 @@ def split_into_batches(report_folder : str, batch_size : int) -> list[list[str]]
     # pdfs loaded from report test batch file
     report_filnames = [os.path.join(report_folder, filename) \
         for filename in os.listdir(report_folder)]
-    
+
     batches = []
     batch = []
     for i, report_filename in enumerate(report_filnames):

@@ -1,7 +1,11 @@
 import sqlite3
 import pandas as pd
-from etl.load.row_loader import load_report_batch_row
 
+if __name__ != "__main__":
+    from etl.load.row_loader import load_report_batch_row
+else:
+    from load.row_loader import load_report_batch_row
+    
 def load(report_batch_dataframe : pd.DataFrame) -> None:
     
     conn = sqlite3.connect(r'.\data\test.db')

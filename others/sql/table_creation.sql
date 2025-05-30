@@ -39,44 +39,27 @@ CREATE TABLE inspector_dim (
     name TEXT
 );
 
--- Reported Via Table
-CREATE TABLE reported_via_dim (
-    reported_via_id INTEGER PRIMARY KEY,
-    method TEXT,
-    agency TEXT,
-    date_id INTEGER,
-    time_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
-    FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
-);
+-- -- Reported Via Table
+-- CREATE TABLE reported_via_dim (
+--     reported_via_id INTEGER PRIMARY KEY,
+--     method TEXT,
+--     agency TEXT,
+--     date_id INTEGER,
+--     time_id INTEGER,
+--     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
+--     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
+-- );
 
--- Acknowledgement Table
-CREATE TABLE acknowledgement_dim (
-    acknowledgement_id INTEGER PRIMARY KEY,
-    method TEXT,
-    date_id INTEGER,
-    time_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
-    FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
-);
+-- -- Acknowledgement Table
+-- CREATE TABLE acknowledgement_dim (
+--     acknowledgement_id INTEGER PRIMARY KEY,
+--     method TEXT,
+--     date_id INTEGER,
+--     time_id INTEGER,
+--     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
+--     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
+-- );
 
--- LTA Verified By Table
-CREATE TABLE lta_verified_by_dim (
-    lta_verified_by_id INTEGER PRIMARY KEY,
-    name TEXT,
-    date_id INTEGER,
-    instructions TEXT,
-    wso_no TEXT,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
-);
-
--- Contractor Acknowledged Received By Table
-CREATE TABLE contractor_acknowledged_received_by_dim (
-    contractor_acknowledged_received_by_id INTEGER PRIMARY KEY,
-    name TEXT,
-    date_id INTEGER,
-    FOREIGN KEY (date_id) REFERENCES date_dim(date_id)
-);
 
 -- Main Report Table
 CREATE TABLE report_fact (
@@ -90,8 +73,6 @@ CREATE TABLE report_fact (
     inspector_id INTEGER,
     reported_via_id INTEGER,
     acknowledgement_id INTEGER,
-    lta_verified_by_id INTEGER,
-    contractor_acknowledged_received_by_id INTEGER,
     repeated_defect INTEGER CHECK (repeated_defect IN (0, 1)),
     description TEXT,
     quantity INTEGER,
@@ -106,6 +87,4 @@ CREATE TABLE report_fact (
     FOREIGN KEY (inspector_id) REFERENCES inspector_dim(inspector_id),
     FOREIGN KEY (reported_via_id) REFERENCES reported_via_dim(reported_via_id),
     FOREIGN KEY (acknowledgement_id) REFERENCES acknowledgement_dim(acknowledgement_id),
-    FOREIGN KEY (lta_verified_by_id) REFERENCES lta_verified_by_dim(lta_verified_by_id),
-    FOREIGN KEY (contractor_acknowledged_received_by_id) REFERENCES contractor_acknowledged_received_by_dim(contractor_acknowledged_received_by_id)
 );

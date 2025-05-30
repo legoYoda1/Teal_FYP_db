@@ -39,8 +39,6 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
         report_batch_row["Date"] = format_to_date_key(report_batch_row["Date"])
         report_batch_row["Reported_via__date"] = format_to_date_key(report_batch_row["Reported_via__date"])
         report_batch_row["Acknowledgement__date"] = format_to_date_key(report_batch_row["Acknowledgement__date"])
-        report_batch_row["Defects_verified_by__date"] = format_to_date_key(report_batch_row["Defects_verified_by__date"])
-        report_batch_row["Acknowledged_and_received_by__date"] = format_to_date_key(report_batch_row["Acknowledged_and_received_by__date"])
     except Exception as e:
         print(f"Error: {e}")
         raise

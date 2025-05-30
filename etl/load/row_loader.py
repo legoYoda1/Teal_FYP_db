@@ -78,37 +78,25 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
         load_dim_non_repeatable_field(report_batch_row['Supervised_by'], 'supervisor_dim', 'name', foreign_key_id, cursor, conn)
         load_dim_non_repeatable_field(report_batch_row['Inspected_by'], 'inspector_dim', 'name', foreign_key_id, cursor, conn)
 
-        load_dim(dim='reported_via_dim', fields=('method', 'agency', 'date_id', 'time_id'), 
-                 values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__agency'], 
-                         report_batch_row['Reported_via__date'], report_batch_row['Reported_via__time']),
-                 foreign_key_id=foreign_key_id, 
-                 cursor=cursor, conn=conn
-                 )
-        load_dim(dim='acknowledgement_dim', fields=('method', 'date_id', 'time_id'), 
-                 values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__date'], 
-                         report_batch_row['Reported_via__time']),
-                 foreign_key_id=foreign_key_id, 
-                 cursor=cursor, conn=conn
-                 )
-        load_dim(dim='lta_verified_by_dim', fields=('name', 'date_id', 'instructions', 'wso_no'), 
-                 values=(report_batch_row['Defects_verified_by__name'], report_batch_row['Defects_verified_by__date'], 
-                         report_batch_row['Instructions'], report_batch_row['WSO_no']),
-                 foreign_key_id=foreign_key_id, 
-                 cursor=cursor, conn=conn
-                 )
-        load_dim(dim='contractor_acknowledged_received_by_dim', fields=('name', 'date_id'), 
-                 values=(report_batch_row['Acknowledged_and_received_by__name'], 
-                         report_batch_row['Acknowledged_and_received_by__date']),
-                 foreign_key_id=foreign_key_id, 
-                 cursor=cursor, conn=conn
-                 )
+        # load_dim(dim='reported_via_dim', fields=('method', 'agency', 'date_id', 'time_id'), 
+        #          values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__agency'], 
+        #                  report_batch_row['Reported_via__date'], report_batch_row['Reported_via__time']),
+        #          foreign_key_id=foreign_key_id, 
+        #          cursor=cursor, conn=conn
+        #          )
+        # load_dim(dim='acknowledgement_dim', fields=('method', 'date_id', 'time_id'), 
+        #          values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__date'], 
+        #                  report_batch_row['Reported_via__time']),
+        #          foreign_key_id=foreign_key_id, 
+        #          cursor=cursor, conn=conn
+        #          )
+
 
         # Inserting data into report_fact table
         cursor.execute('''
             INSERT INTO report_fact (defect_ref_no, date_id, location_id, asset_id, supervisor_id, inspector_id, 
-            reported_via_id, acknowledgement_id, lta_verified_by_id, contractor_acknowledged_received_by_id, 
             repeated_defect, description, quantity, measurement, cause_of_defect, reccomendation) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             report_batch_row['Defect_ref_no'], 
             report_batch_row['Date'], 
@@ -116,10 +104,8 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
             asset_ids[random.randint(0, len(asset_ids)-1)], 
             foreign_key_id['supervisor_dim'], 
             foreign_key_id['inspector_dim'], 
-            foreign_key_id['reported_via_dim'], 
-            foreign_key_id['acknowledgement_dim'], 
-            foreign_key_id['lta_verified_by_dim'], 
-            foreign_key_id['contractor_acknowledged_received_by_dim'], 
+            # foreign_key_id['reported_via_dim'], 
+            # foreign_key_id['acknowledgement_dim'],
             report_batch_row['Repeated_defect'], 
             report_batch_row['Description'], 
             report_batch_row['Quantity'], 

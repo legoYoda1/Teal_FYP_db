@@ -1,4 +1,8 @@
 DROP TABLE IF EXISTS report_fact;
+DROP TABLE IF EXISTS contractor_acknowledged_received_by_dim;
+DROP TABLE IF EXISTS lta_verified_by_dim;
+DROP TABLE IF EXISTS acknowledgement_dim;
+DROP TABLE IF EXISTS reported_via_dim;
 DROP TABLE IF EXISTS inspector_dim;
 DROP TABLE IF EXISTS supervisor_dim;
 DROP TABLE IF EXISTS asset_dim;

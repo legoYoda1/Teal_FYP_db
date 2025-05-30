@@ -88,3 +88,5 @@ CREATE TABLE report_fact (
     FOREIGN KEY (reported_via_id) REFERENCES reported_via_dim(reported_via_id),
     FOREIGN KEY (acknowledgement_id) REFERENCES acknowledgement_dim(acknowledgement_id),
 );
+
+

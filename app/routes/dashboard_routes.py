@@ -5,9 +5,10 @@ from datetime import datetime, timedelta
 import pandas as pd
 from flask import render_template, request, url_for
 from flask import Blueprint, jsonify, current_app
-from app.dashboard_functions import insert_filters, get_chart_suggestions, convert_ndarrays
+from app.dashboard_functions import insert_filters, get_chart_suggestions, convert_ndarrays, get_query_suggestions
 import json
 import plotly.express as px
+import plotly.graph_objects as go
 
 bp = Blueprint('dashboard_routes', __name__)
 
@@ -15,8 +16,18 @@ bp = Blueprint('dashboard_routes', __name__)
 def index():
     return render_template("landing.html")
 
-@bp.route("/get_charts", methods=["POST"])
-def get_charts():
+@bp.route("/generate_query", methods=["POST"])
+def generate_query():
+    try:
+        prompt = request.json.get("prompt")
+        query = get_query_suggestions(prompt)
+
+        return jsonify({"success": True, "query": query})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+    
+@bp.route("/generate_charts", methods=["POST"])
+def generate_charts():
     try:
         query = request.json.get("sql_query", "SELECT * FROM report_fact")
         conn = sqlite3.connect(current_app.config["DB_PATH"])
@@ -29,7 +40,7 @@ def get_charts():
         parsed = json.loads(suggestion)
 
         # Dynamically evaluate the code safely
-        local_vars = {"df": df, "px": px}
+        local_vars = {"df": df, "px": px, "go": go}
         exec(parsed["code"], {}, local_vars)
         fig = local_vars.get("fig")
         fig_dict = convert_ndarrays(fig.to_dict())
@@ -87,6 +98,8 @@ def dumb():
     end_date = None
     repeated_defect = None
     zone = None
+    chart_code = None
+    fig_json = None
     error = None
     filters = []
     params = {}
@@ -99,6 +112,7 @@ def dumb():
         end_date = request.form.get("end_date", "")
         repeated_defect = request.form.get("repeated_defect")
         zone = request.form.get("zone")
+        chart_code = request.form.get("chart")
 
     if editable_query:
         base_query = editable_query.strip()
@@ -145,11 +159,30 @@ def dumb():
     try:
         conn = sqlite3.connect(current_app.config["DB_PATH"])
         conn.row_factory = sqlite3.Row
+        chart_df = pd.read_sql_query("SELECT * FROM report_fact", conn)
+        df_location = pd.read_sql_query("SELECT * FROM location_dim", conn)
         df = pd.read_sql_query(query, conn, params=params)
         conn.close()
+
+        if "report_path" in df.columns:
+            df["report"] = df["report_path"].apply(
+                lambda x: f'<button href="{url_for("static", filename=f"reports/{x}")}" target="_blank">View</button>' if pd.notnull(x) else "N/A"
+            )
+            df.drop("report_path", axis=1, inplace=True)
+
         table_html = df.to_html(classes="data-table", index=False)
+
+        # Dynamically evaluate the code safely
+        if chart_code is not None:
+            local_vars = {"df": chart_df, "df_location": df_location, "px": px, "go": go, "pd": pd}
+            exec(chart_code, {}, local_vars)
+            fig = local_vars.get("fig")
+            fig_dict = convert_ndarrays(fig.to_dict())
+            fig_json = json.dumps(fig_dict)
+
+
     except Exception as e:
-        table_html = ""
+        # table_html = ""
         error = str(e)
 
-    return render_template("assist.html", table=table_html, error=error, final_query=query)
+    return render_template("assist.html", table=table_html, error=error, fig_json=fig_json)

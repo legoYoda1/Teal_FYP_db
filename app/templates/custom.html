@@ -13,7 +13,7 @@
         <a href="/" class="nav-button">home</a>
     </div>
     <form method="POST">
-        <textarea name="sql_query" placeholder="Enter your SELECT SQL query here"></textarea><br>
+        <textarea name="sql_query" placeholder="Enter your SELECT SQL query here" id="sql_query"></textarea><br>
         <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
         <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
     </form>
@@ -39,6 +39,10 @@
         {{ table|safe }}
     </div>
 
+
+    <input type="text" id="prompt-input" placeholder="Enter your prompt here" value="{{ prompt }}" required>
+    <button id="generate-query-btn" type="submit">Generate SQL Query</button>
+
     <div class="chart-container">
         <input type="hidden" id="final-sql-query" value="{{ final_query }}">
         <button id="show-charts-btn">Show Charts</button>
@@ -46,13 +50,36 @@
         <div class="chart" id="chart-div"></div>
     </div>
 
+    <!-- Generate Query Button Script -->
+    <script>
+document.getElementById("generate-query-btn").addEventListener("click", function () {
+    const prompt_input = document.getElementById("prompt-input").value;
+    fetch("/generate_query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ "prompt": prompt_input })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("sql_query").value = data.query;
+            document.getElementById("final-sql-query").value = data.query;
+        } else {
+            document.getElementById("query-response").innerText = "Error: " + data.error;
+        }
+    })
+    .catch(error => {
+        document.getElementById("query-response").innerText = "Request failed: " + error;
+    });
+});
+</script>
     <!-- Show Charts Button Script -->
      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 document.getElementById("show-charts-btn").addEventListener("click", function () {
     const query = document.getElementById("final-sql-query").value;
 
-    fetch("/get_charts", {
+    fetch("/generate_charts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sql_query: query })

@@ -1,5 +1,6 @@
 import requests
 import numpy as np
+import json
 
 def insert_filters(query, filters_clause):
     """
@@ -59,3 +60,37 @@ def convert_ndarrays(obj):
         return obj.tolist()
     else:
         return obj
+    
+def get_query_suggestions(prompt, url='http://localhost:1234/v1/chat/completions'):
+    payload = {
+    "model": "deepseek-coder-6.7b-instruct",
+    "messages": [
+        {
+            "role": "system",
+            "content": "You are a data engineer. Given a natural language prompt, generate a SQL query that retrieves the data needed to answer the question from the data warehouse. The query should be valid SQLite syntax, without any comments. Make sure to follow the table and column names as per the data warehouse schema. Data warehouse schema: Tables: date_dim(date_id PK, day, month, year), time_dim(time_id PK, minute, hour), location_dim(location_id PK, zone, location, lamppost_id, road_type), asset_dim(asset_id PK, asset_type), supervisor_dim(supervisor_id PK, name), inspector_dim(inspector_id PK, name), report_fact(report_id PK, defect_ref_no, date_id → date_dim.date_id, time_id → time_dim.time_id, location_id → location_dim.location_id, asset_id → asset_dim.asset_id, supervisor_id → supervisor_dim.supervisor_id, inspector_id → inspector_dim.inspector_id, repeated_defect, description, quantity, measurement, cause_of_defect, recommendation, report_path)."
+        },
+        {
+            "role": "user",
+            "content": prompt
+        }
+    ],
+    "temperature": 0.3,
+    "max_tokens": 1024,
+    "stream": False
+}
+
+    response = requests.post(url=url, json=payload)
+    response_json = response.json()
+    content = response_json['choices'][0]['message']['content']
+
+    # Try to parse content as JSON. If it has a top-level "query" key, return that.
+    try:
+        parsed = json.loads(content)
+        # If parsed is a dict with a "query" field, extract it:
+        if isinstance(parsed, dict) and "query" in parsed:
+            return parsed["query"]
+    except json.JSONDecodeError:
+        pass
+
+    # Fallback: return the raw text if it wasn’t valid JSON
+    return content

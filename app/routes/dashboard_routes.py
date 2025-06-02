@@ -78,7 +78,7 @@ def custom():
 
         if "report_path" in df.columns:
             df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="{url_for("static", filename=f"reports/{x}")}" target="_blank">View</a>' if pd.notnull(x) else "N/A"
+                lambda x: f'<a href="{x}" target="_blank">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
 

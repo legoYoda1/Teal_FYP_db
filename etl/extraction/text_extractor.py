@@ -4,7 +4,7 @@ import pymupdf
 if __name__ != "__main__":
     from etl.extraction.form_input import form_input_boundary
 else:
-    from extraction.form_input import form_input_boundary   
+    from form_input import form_input_boundary   
 
 def retrieve_input_strings(pdf) -> dict:
     
@@ -53,7 +53,6 @@ def retrieve_input_strings(pdf) -> dict:
     except Exception as e:
         print(f"Error: {e}")
     
-    
     return form_input_data
 
 def save_altered_pdf() -> None:
@@ -61,13 +60,13 @@ def save_altered_pdf() -> None:
             if os.path.exists('others\test_report_highlight\temp.pdf'):
                 os.remove('others\test_report_highlight\temp.pdf')
                 
-            pdf_temp.save('others/temp.pdf')
+            pdf_temp.save('others\test_report_highlight\temp.pdf')
             
     except Exception as e:
         print(f"Error: {e}")
     
 if __name__ == "__main__":
-    pdf = pymupdf.open(r"others\test_reports_batch\template-1.pdf")
+    pdf = pymupdf.open(r"others\test_report_highlight\xxx.pdf")
     pdf_temp = pdf
     
     form_input_data = retrieve_input_strings(pdf_temp)

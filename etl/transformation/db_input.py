@@ -50,6 +50,7 @@ db_input_fields = (
     "Acknowledgement__method",
     "Acknowledgement__date",
     "Acknowledgement__time",
+    "Report_path"
     # "Defects_verified_by__name",
     # "Defects_verified_by__date",
     # "Instructions",

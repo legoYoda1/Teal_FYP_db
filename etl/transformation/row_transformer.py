@@ -48,6 +48,7 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
     try:
         report_batch_row["Quantity"] = int(*report_batch_row["Quantity"].split()[0])
         report_batch_row["Measurement"] = int(*report_batch_row["Measurement"].split()[0])
+        pass
         
     except Exception as e:
         # print(f"Error: {e}")

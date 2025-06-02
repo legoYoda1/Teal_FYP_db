@@ -62,5 +62,7 @@ def start_etl():
     data = request.get_json()  # Parse JSON body
     batch_size = data.get('batch_size')  # Get the number field
     
+    print("ETL STARTED")
+
     threading.Thread(target=batch_upload_reports, args=(batch_size,)).start()
     return jsonify({"message": "ETl started"}), 200

@@ -23,7 +23,7 @@
     <h1>PDF Picker</h1>
     <button onclick="openDialog()" id="uploadButton">Pick PDF Files</button>
     <p id="message"></p>
-    <input type="number" id="batch_size_input" step="1" , min="1">
+    <input type="number" id="batch_size_input" step="1" min="1" value="1" onkeydown="return false;">
     <p id="batchDisplay" hidden>Batch: <span id="batchNo"></span>/<span id="totalBatches"></span></p>
 
 
@@ -43,7 +43,7 @@
         }
 
         socket.on('dialog_close', function (data) {
-            console.log("dialog_close", data.folder);
+            console.log("dialog_close: ", data.folder);
 
             const batch_size = document.getElementById('batch_size_input').value;
             // displayFolder(data.folder);

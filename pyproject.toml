@@ -9,6 +9,8 @@ dependencies = [
     "flask-socketio>=5.5.1",
     "pandas>=2.2.3",
     "pillow>=11.2.1",
+    "plotly>=6.1.2",
     "pymupdf>=1.25.5",
     "pytest>=8.3.5",
+    "requests>=2.32.3",
 ]

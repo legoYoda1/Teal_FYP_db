@@ -95,8 +95,8 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
         # Inserting data into report_fact table
         cursor.execute('''
             INSERT INTO report_fact (defect_ref_no, date_id, location_id, asset_id, supervisor_id, inspector_id, 
-            repeated_defect, description, quantity, measurement, cause_of_defect, recommendation) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            repeated_defect, description, quantity, measurement, cause_of_defect, recommendation, report_path) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             report_batch_row['Defect_ref_no'], 
             report_batch_row['Date'], 
@@ -111,7 +111,8 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
             report_batch_row['Quantity'], 
             report_batch_row['Measurement'], 
             report_batch_row['Cause_of_defect'], 
-            report_batch_row['Recommendation']
+            report_batch_row['Recommendation'],
+            report_batch_row['Report_path'],
         )) 
         
         conn.commit()

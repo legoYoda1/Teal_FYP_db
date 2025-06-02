@@ -78,7 +78,7 @@ def custom():
 
         if "report_path" in df.columns:
             df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="{x}" target="_blank">View</a>' if pd.notnull(x) else "N/A"
+                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#0FF; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
 
@@ -166,11 +166,11 @@ def dumb():
 
         if "report_path" in df.columns:
             df["report"] = df["report_path"].apply(
-                lambda x: f'<button href="{url_for("static", filename=f"reports/{x}")}" target="_blank">View</button>' if pd.notnull(x) else "N/A"
+                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#0FF; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
 
-        table_html = df.to_html(classes="data-table", index=False)
+        table_html = df.to_html(classes="data-table", index=False, escape=False)
 
         # Dynamically evaluate the code safely
         if chart_code is not None:

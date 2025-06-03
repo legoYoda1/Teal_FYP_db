@@ -2,9 +2,10 @@ import os
 import pymupdf
 
 if __name__ != "__main__":
+    # from .form_input import form_input_boundary   
     from etl.extraction.form_input import form_input_boundary
 else:
-    from form_input import form_input_boundary   
+    pass
 
 def retrieve_input_strings(pdf) -> dict:
     
@@ -43,12 +44,12 @@ def retrieve_input_strings(pdf) -> dict:
                     
                     form_input_data[input_name] += word
                         
-                    draw_word_boundary(pdf_temp[0], word_boundary, (0,0,0), 3)
+                    # draw_word_boundary(pdf_temp[0], word_boundary, (0,0,0), 3)
                     break
                         
         # draw boxes for input boundaries
-        for _, boundary in form_input_boundary.items():
-            draw_word_boundary(pdf_temp[0], boundary, (1,0,0), 1)
+        # for _, boundary in form_input_boundary.items():
+        #     draw_word_boundary(pdf_temp[0], boundary, (1,0,0), 1)
 
     except Exception as e:
         print(f"Error: {e}")

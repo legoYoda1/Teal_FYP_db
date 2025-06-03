@@ -58,6 +58,7 @@ def etl(report_folder, batch_size = 0, socketio = None):
         # print("BATCH NO", batch_upload_status['batch_no'])
         print(f"-----------------------------------------------------------------------------------------\nBatch {i + 1}:")
         report_df = extract(report_batch_filenames=report_batch_filenames)
+        print(report_df.columns)
         report_df = transform(report_batch_dataframe=report_df)
         # print(report_df)
         

@@ -1,2 +1,11 @@
 Defect_ref_no,Date,Repeated_defect,Type_of_road,Location,Landmark,Type_of_asset,Description,Quantity,Measurement,Cause_of_defect,Recommendation,Inspected_by,Supervised_by,Reported_via__method,Reported_via__agency,Reported_via__date,Reported_via__time,Acknowledgement__method,Acknowledgement__date,Acknowledgement__time,Report_path
-SW2-MAS3-EXT-WK004-047,20220916,0,Major,Tuas Checkpoint,LP 25F,Railing,Railing-Damaged,4,4,Hit By Vehicle,To Replace,John,Joe Mama,DRC,,,,Looking method,,,test copy.pdf
+NW-MAS1-EXT-WK027-050,20250314,0,Street,Bukit Timah Road,005E,trench,Medium defect,3,5m x 2m,Weathering,Seal crack,Emily Wang,Alex Johnson,,,,,,,,90.pdf
+NE-MAS3-EXT-WK047-042,20240929,1,Street,Serangoon Road,009F,kerb,Severe defect,4,3m x 4m,Aging,Seal crack,John Zhang,John Johnson,,,,,,,,91.pdf
+SW-MAS2-EXT-WK061-007,20250109,0,Drive,Bukit Timah Road,006A,paint_spillage,Medium defect,3,3m x 4m,Weathering,Patch area,Chris Lee,Nina Johnson,,,,,,,,92.pdf
+SE-MAS1-EXT-WK084-028,20241102,0,Expressway,Orchard Road,016A,missing_sign,Mild defect,2,5m x 2m,Weathering,Seal crack,Sarah Johnson,David Johnson,,,,,,,,93.pdf
+SE-MAS3-EXT-WK023-022,20241115,1,Avenue,Jurong West Street 91,005F,trench,Medium defect,5,2m x 2m,Heavy load,Seal crack,Lily Zhang,Nina Lim,,,,,,,,94.pdf
+SE-MAS1-EXT-WK060-029,20241007,1,Avenue,Changi Road,019A,trench,Medium defect,2,5m x 3m,Weathering,Patch area,Emily Tan,Chris Tan,,,,,,,,95.pdf
+SW-MAS2-EXT-WK069-036,20241207,1,Avenue,Holland Road,002F,missing_sign,Severe defect,5,2m x 3m,Aging,Patch area,Sarah Johnson,John Smith,,,,,,,,96.pdf
+SE-MAS3-EXT-WK086-020,20240528,1,Avenue,Tampines Avenue 5,009A,drainage,Medium defect,2,4m x 5m,Weathering,Repaint lines,Jane Ng,Jane Johnson,,,,,,,,97.pdf
+E-MAS1-EXT-WK067-050,20250409,1,Avenue,Bukit Timah Road,017E,drainage,Severe defect,1,3m x 3m,Weathering,Repaint lines,Emily Lee,Lily Brown,,,,,,,,98.pdf
+NE-MAS1-EXT-WK049-025,20240919,0,Drive,Cecil Street,015A,drainage,Mild defect,2,2m x 5m,Heavy load,Seal crack,Alex Lee,Chris Lee,,,,,,,,99.pdf

@@ -1,21 +1,2 @@
-defect_ref_no,date,repeated_defect,type_of_road,location,landmark,type_of_asset,description,quantity,measurement,cause_of_defect,recommendation,inspected_by,supervised_by
-ODVI9XW6IJ,20240402,0,,,,,Crack on edge,4,1,Heavy load,Patch area,Sarah Johnson,David Smith
-1M71KIZ0J7,20250429,1,,,,,Minor pothole,1,5,Weathering,Seal crack,James Wang,Alex Tan
-D042UYVDW8,20240612,1,,,,,Worn paint,5,4,Heavy load,Seal crack,Alex Lim,James Tan
-SHU7ICA6LA,20250129,0,,,,,Worn paint,2,2,Aging,Seal crack,Chris Wang,John Chan
-N7OAVLL3SX,20250201,0,,,,,Crack on edge,4,1,Weathering,Seal crack,Emily Ng,Chris Zhang
-4E3DNSFZY9,20240703,1,,,,,Minor pothole,2,2,Weathering,Seal crack,Emily Lee,Chris Wang
-K56PDHLX53,20240209,0,,,,,Worn paint,5,4,Aging,Patch area,James Ng,Chris Ng
-QCYWK0K1OM,20241122,1,,,,,Worn paint,4,5,Heavy load,Patch area,John Wang,Jane Lim
-OLC8AHDTGQ,20240706,1,,,,,Minor pothole,3,1,Weathering,Patch area,Chris Brown,Lily Zhang
-1IRP8N672J,20240321,0,,,,,Minor pothole,5,2,Aging,Seal crack,Lily Tan,Jane Lee
-J29YGP56CK,20240504,1,,,,,Crack on edge,4,1,Heavy load,Seal crack,James Zhang,Chris Lee
-PYH64PEPJ1,20241104,0,,,,,Crack on edge,3,5,Aging,Seal crack,Emily Smith,Chris Lee
-FB6ZPCDYJD,20250414,0,,,,,Minor pothole,1,5,Heavy load,Repaint lines,Emily Lee,Emily Lim
-8FSM222BWW,20250402,0,,,,,Crack on edge,5,3,Heavy load,Patch area,Nina Ng,Chris Lee
-2ZJ5IWYIZL,20240713,0,,,,,Crack on edge,1,5,Weathering,Seal crack,James Johnson,David Zhang
-FQAZZE58Y0,20250417,1,,,,,Worn paint,5,1,Weathering,Repaint lines,Nina Lee,Nina Lim
-34IVI5TNVF,20241216,0,,,,,Worn paint,2,4,Aging,Patch area,Nina Johnson,Chris Lee
-IVGFR0Y46X,20240223,0,,,,,Crack on edge,4,2,Heavy load,Repaint lines,John Chan,Jane Johnson
-LAOIWXL8P9,20240227,0,,,,,Minor pothole,4,3,Aging,Patch area,John Johnson,John Lee
-F7L007H0PA,20250107,1,,,,,Minor pothole,1,4,Aging,Seal crack,David Lee,John Chan
+Defect_ref_no,Date,Repeated_defect,Type_of_road,Location,Landmark,Type_of_asset,Description,Quantity,Measurement,Cause_of_defect,Recommendation,Inspected_by,Supervised_by
+W-MAS2-EXT-WK080-040,04/05/2024,0,Drive,Sembawang Road,LP015D,drainage,Mild defect,3,5m x 1m,Aging,Repaint lines,Nina Ng,Jane Chan

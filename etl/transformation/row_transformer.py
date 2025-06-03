@@ -25,9 +25,9 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
     
     # split location and landmark from "Location" key, put landmark in "Landmark"
     try:
-        temp = report_batch_row["Location"].split()
-        report_batch_row["Landmark"] = ' '.join(temp[-2:])
-        report_batch_row["Location"] = ' '.join(temp[:-2])
+        temp = report_batch_row["Location"]
+        report_batch_row["Landmark"] = ''.join(temp[-4:])
+        report_batch_row["Location"] = ''.join(temp[:-7])
         
     except Exception as e:
         print(f"Error: {e}")
@@ -46,34 +46,24 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
         
     # omit strings(words) from quantity/measurement and convert to int
     try:
-        report_batch_row["Quantity"] = int(*report_batch_row["Quantity"].split()[0])
-        report_batch_row["Measurement"] = int(*report_batch_row["Measurement"].split()[0])
+        # report_batch_row["Quantity"] = int(*report_batch_row["Quantity"].split()[0])
+        # report_batch_row["Measurement"] = int(*report_batch_row["Measurement"].split()[0])
         pass
         
-    except Exception as e:
-        # print(f"Error: {e}")
-        raise
-    try:
-        is_repeated_defect = report_batch_row["Repeated_defect"]
-        if is_repeated_defect == "Yes": 
-            report_batch_row["Repeated_defect"] = 1
-        else:
-            report_batch_row["Repeated_defect"] = 0
+    # except Exception as e:
+    #     # print(f"Error: {e}")
+    #     raise
+    # try:
+    #     is_repeated_defect = report_batch_row["Repeated_defect"]
+    #     if is_repeated_defect == "Yes": 
+    #         report_batch_row["Repeated_defect"] = 1
+    #     else:
+    #         report_batch_row["Repeated_defect"] = 0
             
     except Exception as e:
         # print(f"Error: {e}")
         raise
 
-    try:
-        is_repeated_defect = report_batch_row["Repeated_defect"]
-        if is_repeated_defect == "Yes": 
-            report_batch_row["Repeated_defect"] = 1
-        else:
-            report_batch_row["Repeated_defect"] = 0
-            
-    except Exception as e:
-        # print(f"Error: {e}")
-        raise
         
     
     return report_batch_row

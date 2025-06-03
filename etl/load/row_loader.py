@@ -52,24 +52,6 @@ def load_dim_non_repeatable_field(value : any, dim : str, field : str, foreign_k
 
 # NOTICE these are dummy data for testing!!!
 # Subject to change in the future
-location_ids = [
-    'or1A', 'or1B', 'or1C', 'or1D', 'or1E', 'or1F', 
-    'or2A', 'or2B', 'or2C', 'or2D', 'or2E', 'or2F',
-    'mp1A', 'mp1B', 'mp1C', 'mp1D', 'mp1E', 'mp1F',
-    'mp2A', 'mp2B', 'mp2C', 'mp2D', 'mp2E', 'mp2F',
-    'rp1A', 'rp1B', 'rp1C', 'rp1D', 'rp1E', 'rp1F',
-    'rp2A', 'rp2B', 'rp2C', 'rp2D', 'rp2E', 'rp2F',
-    'ecp1A', 'ecp1B', 'ecp1C', 'ecp1D', 'ecp1E', 'ecp1F',
-    'ecp2A', 'ecp2B', 'ecp2C', 'ecp2D', 'ecp2E', 'ecp2F',
-    'st1A', 'st1B', 'st1C', 'st1D', 'st1E', 'st1F',
-    'st2A', 'st2B', 'st2C', 'st2D', 'st2E', 'st2F'
-]
-
-asset_ids = [
-    'crk', 'pth', 'def', 'sfd', 'jnt', 'drn',
-    'shd', 'wcr', 'utd', 'str'
-]
-  
 
 def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor, conn : None):
 
@@ -77,6 +59,37 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
     try:
         load_dim_non_repeatable_field(report_batch_row['Supervised_by'], 'supervisor_dim', 'name', foreign_key_id, cursor, conn)
         load_dim_non_repeatable_field(report_batch_row['Inspected_by'], 'inspector_dim', 'name', foreign_key_id, cursor, conn)
+        
+        try:
+            cursor.execute(f'''
+                SELECT asset_id
+                    FROM asset_dim
+                    WHERE asset_type = '{report_batch_row['Type_of_asset']}'
+            ''')
+
+            row_id = (cursor.fetchone())[0]
+            
+            foreign_key_id['asset_dim'] = row_id
+            # print(row_id)
+            
+            conn.commit()
+        except KeyError as e:
+            print("DB error: ", e)
+            
+        try:
+            print(report_batch_row['Location'], report_batch_row['Landmark'])
+            cursor.execute(f'''
+                SELECT location_id
+                    FROM location_dim
+                    WHERE location = '{report_batch_row['Location']}' and lamppost_id = '{report_batch_row['Landmark']}'
+            ''')
+            row_id = (cursor.fetchone()[0])
+            # print(row_id)
+            foreign_key_id['location_dim'] = row_id
+            
+            conn.commit()
+        except KeyError as e:
+            print("DB error: ", e)
 
         # load_dim(dim='reported_via_dim', fields=('method', 'agency', 'date_id', 'time_id'), 
         #          values=(report_batch_row['Reported_via__method'], report_batch_row['Reported_via__agency'], 
@@ -100,8 +113,8 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
         ''', (
             report_batch_row['Defect_ref_no'], 
             report_batch_row['Date'], 
-            location_ids[random.randint(0, len(location_ids)-1)], 
-            asset_ids[random.randint(0, len(asset_ids)-1)], 
+            foreign_key_id['location_dim'], 
+            foreign_key_id['asset_dim'], 
             foreign_key_id['supervisor_dim'], 
             foreign_key_id['inspector_dim'], 
             # foreign_key_id['reported_via_dim'], 

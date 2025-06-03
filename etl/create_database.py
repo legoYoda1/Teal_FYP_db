@@ -25,8 +25,8 @@ def reinit_db():
     
     conn.close()
     
-    df = pd.read_csv(r'others\misc\dummy_report_batch.csv')
-    load(df)
+    # df = pd.read_csv(r'others\misc\dummy_report_batch.csv')
+    # load(df)
     
 
 if __name__ == "__main__":

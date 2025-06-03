@@ -9,6 +9,7 @@ wheels/
 # test database 
 /data/test.db
 others/test_reports_batch/
+app/static/reports
 
 
 # Virtual environments

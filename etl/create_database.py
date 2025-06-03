@@ -3,8 +3,6 @@ import sqlite3
 
 import pandas as pd
 
-from load.loader import load
-
 def execute_sql_script(script_name : str, cursor : sqlite3.Cursor):
     current_directory = os.getcwd()
     

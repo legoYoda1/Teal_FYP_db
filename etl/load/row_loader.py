@@ -67,6 +67,7 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
                     WHERE asset_type = '{report_batch_row['Type_of_asset']}'
             ''')
 
+            print(report_batch_row['Type_of_asset'])
             row_id = (cursor.fetchone())[0]
             
             foreign_key_id['asset_dim'] = row_id
@@ -83,9 +84,13 @@ def load_report_batch_row(report_batch_row : pd.Series, cursor : sqlite3.Cursor,
                     FROM location_dim
                     WHERE location = '{report_batch_row['Location']}' and lamppost_id = '{report_batch_row['Landmark']}'
             ''')
-            row_id = (cursor.fetchone()[0])
-            # print(row_id)
-            foreign_key_id['location_dim'] = row_id
+            foo = cursor.fetchone()
+            
+            if foo == None:
+                foreign_key_id['location_dim'] = 'C001A'    
+            else:
+                row_id = foo[0]
+                foreign_key_id['location_dim'] = row_id
             
             conn.commit()
         except KeyError as e:

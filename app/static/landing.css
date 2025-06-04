@@ -1,36 +1,30 @@
 .report-button {
-    background-color: rgb(255, 81, 0);
+    background-color: #e02224;
     color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
+    box-shadow: 0 0 8px rgba(224, 34, 36, 0.5);
 }
 
 .report-button:hover {
-    background-color:  rgb(155, 51, 3);
+    background-color: #c51d1e;
 }
 
 #page-title {
-    color: #0ff;
+    color: white;
     text-align: center;
     margin-top: 20px;
     font-size: 4em;
 }
 
 .nav-button {
-    background-color: #0ff;
-    color: #000;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
     font-size: 1.5em;
-    margin: 1em;
 }
 
 .nav-button:hover {
-    background-color:  rgb(2, 121, 121);
+    background-color: #154bcc;
 }
 
 .navbar {

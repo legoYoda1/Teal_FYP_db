@@ -6,15 +6,6 @@ dist/
 wheels/
 *.egg-info
 
-# test database 
-/data/test.db
-others/test_reports_batch/
-app/static/reports/
-
-# Virtual environments
-.venv
-.env
-
 # Ignore the SQLite database
 test.db
 
@@ -23,5 +14,13 @@ others\misc\report_batch_2.csv
 others\misc\report_batch.csv
 others\misc\dummy_report_batch.csv
 
+# Virtual environments
+.venv
+.env
+
 # .vscode
 .vscode
+
+
+# Ignore the reports folder and its contents
+app/static/reports/

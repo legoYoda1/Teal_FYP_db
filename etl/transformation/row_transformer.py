@@ -63,8 +63,6 @@ def preprocess_report_batch_row(report_batch_row: pd.Series) -> pd.Series:
     except Exception as e:
         # print(f"Error: {e}")
         raise
-
-        
     
     return report_batch_row
     

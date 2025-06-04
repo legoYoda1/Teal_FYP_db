@@ -9,6 +9,11 @@ wheels/
 # Ignore the SQLite database
 test.db
 
+# Ignore batch csv
+others\misc\report_batch_2.csv
+others\misc\report_batch.csv
+others\misc\dummy_report_batch.csv
+
 # Virtual environments
 .venv
 .env

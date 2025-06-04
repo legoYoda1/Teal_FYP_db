@@ -3,8 +3,6 @@ import sqlite3
 
 import pandas as pd
 
-from load.loader import load
-
 def execute_sql_script(script_name : str, cursor : sqlite3.Cursor):
     current_directory = os.getcwd()
     
@@ -25,8 +23,8 @@ def reinit_db():
     
     conn.close()
     
-    df = pd.read_csv(r'others\misc\dummy_report_batch.csv')
-    load(df)
+    # df = pd.read_csv(r'others\misc\dummy_report_batch.csv')
+    # load(df)
     
 
 if __name__ == "__main__":

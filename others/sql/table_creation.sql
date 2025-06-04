@@ -40,26 +40,6 @@ CREATE TABLE inspector_dim (
     name TEXT
 );
 
--- -- Reported Via Table
--- CREATE TABLE reported_via_dim (
---     reported_via_id INTEGER PRIMARY KEY,
---     method TEXT,
---     agency TEXT,
---     date_id INTEGER,
---     time_id INTEGER,
---     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
---     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
--- );
-
--- -- Acknowledgement Table
--- CREATE TABLE acknowledgement_dim (
---     acknowledgement_id INTEGER PRIMARY KEY,
---     method TEXT,
---     date_id INTEGER,
---     time_id INTEGER,
---     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
---     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
--- );
 
 
 -- Main Report Table
@@ -88,7 +68,29 @@ CREATE TABLE report_fact (
     FOREIGN KEY (supervisor_id) REFERENCES supervisor_dim(supervisor_id),
     FOREIGN KEY (inspector_id) REFERENCES inspector_dim(inspector_id),
     FOREIGN KEY (reported_via_id) REFERENCES reported_via_dim(reported_via_id),
-    FOREIGN KEY (acknowledgement_id) REFERENCES acknowledgement_dim(acknowledgement_id),
+    FOREIGN KEY (acknowledgement_id) REFERENCES acknowledgement_dim(acknowledgement_id)
 );
+
+
+-- -- Reported Via Table
+-- CREATE TABLE reported_via_dim (
+--     reported_via_id INTEGER PRIMARY KEY,
+--     method TEXT,
+--     agency TEXT,
+--     date_id INTEGER,
+--     time_id INTEGER,
+--     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
+--     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
+-- );
+
+-- -- Acknowledgement Table
+-- CREATE TABLE acknowledgement_dim (
+--     acknowledgement_id INTEGER PRIMARY KEY,
+--     method TEXT,
+--     date_id INTEGER,
+--     time_id INTEGER,
+--     FOREIGN KEY (date_id) REFERENCES date_dim(date_id),
+--     FOREIGN KEY (time_id) REFERENCES time_dim(time_id)
+-- );
 
 

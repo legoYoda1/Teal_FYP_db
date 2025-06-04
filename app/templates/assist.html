@@ -15,6 +15,7 @@
         <a href="/" class="nav-button">home</a>
     </div>
     <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
+
     <form method="POST" style="margin-top: 20px;  margin-bottom: 50px;">
          <!-- Time Interval Dropdown -->
     <label for="time_interval">Time Interval:</label>
@@ -52,7 +53,7 @@
         </select>
     
         <br><br>
-        <button type="submit">Filter Reports</button>
+        <button type="submit" style="background-color: #e02224;">Filter Reports</button>
     </form>
 
     <label style="font-size: 1.2em; font-weight: bold;">Quick Queries:</label>
@@ -67,7 +68,7 @@
             <input type="hidden" name="end_date" id="form_end_date">
             <input type="hidden" name="repeated_defect" id="form_repeated_defect">
             <input type="hidden" name="zone" id="form_zone">
-            <input type="hidden" name="chart" id="form_chart" value="df_count = df['cause_of_defect'].value_counts().reset_index(); df_count.columns = ['cause_of_defect', 'count']; fig = px.bar(df_count, x='cause_of_defect', y='count', title='Causes of defect', labels={'cause_of_defect': 'Cause of Defect', 'count': 'Count'})">
+            <input type="hidden" name="chart" id="form_chart" value="fig = px.bar(df.groupby('cause_of_defect').size().reset_index(name='count'), x='cause_of_defect', y='count', title='Causes of Defect', labels={'cause_of_defect': 'Cause of Defect', 'count': 'Count'})">
             <button type="submit" class="query-button">Most Common Defect</button>
         </form>
         <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1`)">✏️ Edit</button>
@@ -126,7 +127,7 @@
         {{ table|safe }}
     </div>
 
-    <button id="show-charts-btn" onclick="renderChart()" style="margin-bottom: 10px;">Show Charts</button>
+    <button id="show-charts-btn" onclick="renderChart()" style="margin-bottom: 10px; background-color: #e02224;">Show Charts</button>
     <div class="chart" id="chart-div"></div>
 
     <!-- Show Charts Button Script -->

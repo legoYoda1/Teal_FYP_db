@@ -1,14 +1,13 @@
 import os
 import sqlite3
 from datetime import datetime, timedelta
-
-import pandas as pd
 from flask import render_template, request, url_for
 from flask import Blueprint, jsonify, current_app
 from app.dashboard_functions import insert_filters, get_chart_suggestions, convert_ndarrays, get_query_suggestions
 import json
 import plotly.express as px
 import plotly.graph_objects as go
+import pandas as pd
 
 bp = Blueprint('dashboard_routes', __name__)
 
@@ -78,7 +77,7 @@ def custom():
 
         if "report_path" in df.columns:
             df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#0FF; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
+                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
 
@@ -166,7 +165,7 @@ def dumb():
 
         if "report_path" in df.columns:
             df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#0FF; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
+                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
 
@@ -175,7 +174,7 @@ def dumb():
         # Dynamically evaluate the code safely
         if chart_code is not None:
             local_vars = {"df": chart_df, "df_location": df_location, "px": px, "go": go, "pd": pd}
-            exec(chart_code, {}, local_vars)
+            exec(chart_code, local_vars, local_vars)
             fig = local_vars.get("fig")
             fig_dict = convert_ndarrays(fig.to_dict())
             fig_json = json.dumps(fig_dict)

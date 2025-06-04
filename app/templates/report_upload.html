@@ -22,9 +22,28 @@
 
     <h1>PDF Picker</h1>
     <button onclick="openDialog()" id="uploadButton">Pick PDF Files</button>
-    <p id="message"></p>
-    <input type="number" id="batch_size_input" step="1" min="1" value="1" onkeydown="return false;">
-    <p id="batchDisplay" hidden>Batch: <span id="batchNo"></span>/<span id="totalBatches"></span></p>
+    <!-- <p id="message"></p>
+    <div>
+        <p>Batch size:</p>
+        <input type="number" id="batch_size_input" step="1" min="1" value="1">
+    </div>
+    <p id="batchDisplay" hidden>Batch: <span id="batchNo"></span>/<span id="totalBatches"></span></p> -->
+    <div style="margin-bottom: 1rem; margin-top: 1rem; font-family: Arial, sans-serif;">
+        <label for="batch_size_input" style="display: block; font-weight: bold; margin-bottom: 0.5rem;">
+            Batch size:
+        </label>
+        <input type="number" id="batch_size_input" step="1" min="1" value="1"
+            style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; width: 100px;">
+    </div>
+
+    <div id="A" hidden>
+        <div id="batchDisplay"
+            style="font-family: Arial, sans-serif; padding: 0.5rem; border-radius: 4px; display: flex; flex-direction: column; align-items: center;">
+            <div><strong>Batch:</strong> <span id="batchNo"></span>/<span id="totalBatches"></span></div>
+
+            <progress style="margin-top: 0.5rem; width: 100%;" id="progressBar" max="100"></progress>
+        </div>
+    </div>
 
 
 
@@ -69,15 +88,16 @@
         }
 
         socket.on('batch_upload_status_update', function (data) {
-            document.getElementById('batchDisplay').hidden = false;
+            document.getElementById('A').hidden = false;
 
             console.log("batch_upload_status_update", data);
             document.getElementById('batchNo').textContent = data.batch_no;
             document.getElementById('totalBatches').textContent = data.total_batches;
+            document.getElementById('progressBar').value = data.batch_no / data.total_batches * 100;
 
             if (data.batch_no == data.total_batches) {
                 // document.getElementById('batchDisplay').hidden = true;
-                document.getElementById('batchDisplay').hidden = true;
+                document.getElementById('A').hidden = true;
                 document.getElementById('message').innerText = "Upload Complete!";
             }
         });

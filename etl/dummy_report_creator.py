@@ -67,7 +67,7 @@ def generate_defect_rows(n=10):
 
 if __name__ == "__main__":
     try:
-        df = generate_defect_rows(n=1000)
+        df = generate_defect_rows(n=150)
         df.to_csv(r'others/misc/dummy_report_batch.csv', index=False)  
     except Exception as e:
         raise

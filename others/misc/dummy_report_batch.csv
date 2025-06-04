@@ -1,2 +1,151 @@
 Defect_ref_no,Date,Repeated_defect,Type_of_road,Location,Landmark,Type_of_asset,Description,Quantity,Measurement,Cause_of_defect,Recommendation,Inspected_by,Supervised_by
-W-MAS2-EXT-WK080-040,04/05/2024,0,Drive,Sembawang Road,LP015D,drainage,Mild defect,3,5m x 1m,Aging,Repaint lines,Nina Ng,Jane Chan
+N-MAS1-EXT-WK082-025,28/03/2024,1,Expressway,Serangoon Road,LP001F,drainage,Severe defect,3,3m x 2m,Heavy load,Seal crack,James Lim,Lily Smith
+NW-MAS1-EXT-WK010-002,29/04/2024,1,Expressway,Changi Road,LP008E,pothole,Mild defect,4,5m x 5m,Weathering,Repaint lines,Jane Chan,Sarah Johnson
+S-MAS1-EXT-WK057-036,21/02/2024,1,Drive,Sembawang Road,LP014A,missing_sign,Medium defect,1,5m x 5m,Weathering,Seal crack,David Ng,John Lee
+W-MAS1-EXT-WK014-029,13/03/2025,0,Drive,Sembawang Road,LP009B,missing_sign,Medium defect,1,3m x 3m,Heavy load,Patch area,Alex Brown,Sarah Ng
+W-MAS1-EXT-WK074-032,15/01/2024,1,Expressway,Sembawang Road,LP020C,trench,Severe defect,5,5m x 3m,Heavy load,Seal crack,Sarah Chan,Nina Lim
+SE-MAS2-EXT-WK002-005,09/12/2024,0,Avenue,Upper Thomson Road,LP004A,kerb,Severe defect,2,4m x 5m,Heavy load,Patch area,Chris Chan,Chris Brown
+NE-MAS1-EXT-WK013-031,16/09/2024,0,Street,Jurong West Street 91,LP009B,pothole,Medium defect,4,5m x 4m,Weathering,Patch area,Chris Wang,Emily Tan
+N-MAS2-EXT-WK025-011,07/04/2025,1,Drive,Serangoon Road,LP001E,missing_sign,Mild defect,4,2m x 1m,Heavy load,Patch area,Chris Smith,Alex Lim
+E-MAS1-EXT-WK072-011,10/07/2024,1,Expressway,Holland Road,LP004A,drainage,Severe defect,3,4m x 1m,Weathering,Seal crack,James Zhang,Jane Smith
+NE-MAS3-EXT-WK042-035,31/10/2024,1,Avenue,Cecil Street,LP016C,drainage,Severe defect,2,5m x 5m,Weathering,Repaint lines,Alex Wang,Alex Wang
+S-MAS1-EXT-WK086-045,09/06/2024,1,Expressway,Sembawang Road,LP020B,paint_spillage,Medium defect,5,5m x 2m,Aging,Seal crack,Sarah Smith,David Johnson
+NW-MAS1-EXT-WK064-049,03/01/2024,1,Expressway,Serangoon Road,LP004A,pothole,Severe defect,2,4m x 2m,Weathering,Patch area,Chris Lim,Chris Brown
+NE-MAS2-EXT-WK088-026,05/02/2025,1,Drive,Serangoon Road,LP005E,missing_sign,Severe defect,3,5m x 4m,Weathering,Seal crack,Chris Lim,John Lim
+E-MAS3-EXT-WK080-030,10/02/2024,1,Expressway,Serangoon Road,LP013E,drainage,Medium defect,1,2m x 3m,Aging,Repaint lines,Jane Brown,Chris Chan
+SW-MAS2-EXT-WK085-002,17/05/2024,1,Street,Cecil Street,LP010B,drainage,Severe defect,1,2m x 5m,Weathering,Seal crack,Jane Smith,John Ng
+SE-MAS3-EXT-WK092-017,10/04/2025,1,Expressway,Holland Road,LP016C,kerb,Mild defect,4,5m x 3m,Heavy load,Seal crack,David Brown,James Tan
+E-MAS1-EXT-WK013-025,02/04/2024,1,Street,Jurong West Street 91,LP014D,trench,Severe defect,5,3m x 2m,Heavy load,Patch area,James Ng,Chris Lee
+NW-MAS2-EXT-WK080-006,29/03/2025,0,Street,Serangoon Road,LP010A,paint_spillage,Severe defect,5,3m x 3m,Aging,Seal crack,James Zhang,David Smith
+W-MAS1-EXT-WK005-007,24/03/2024,1,Street,Cecil Street,LP017B,paint_spillage,Medium defect,3,4m x 1m,Weathering,Patch area,Nina Johnson,Jane Lim
+N-MAS1-EXT-WK096-004,24/02/2025,0,Street,Tampines Avenue 5,LP013E,missing_sign,Severe defect,2,3m x 4m,Weathering,Patch area,Sarah Johnson,Lily Tan
+N-MAS2-EXT-WK005-007,30/12/2024,1,Avenue,Bukit Timah Road,LP010D,kerb,Severe defect,4,2m x 3m,Heavy load,Seal crack,David Smith,Sarah Ng
+NE-MAS2-EXT-WK007-049,22/08/2024,0,Drive,Cecil Street,LP016F,drainage,Mild defect,4,5m x 3m,Heavy load,Seal crack,Sarah Lee,Alex Zhang
+SE-MAS1-EXT-WK023-045,12/02/2024,1,Drive,Upper Thomson Road,LP007E,kerb,Severe defect,4,4m x 5m,Weathering,Seal crack,Sarah Ng,David Tan
+SW-MAS3-EXT-WK099-025,06/01/2025,1,Drive,Serangoon Road,LP016D,pothole,Mild defect,3,2m x 3m,Aging,Patch area,Jane Lim,Sarah Chan
+NW-MAS3-EXT-WK008-037,03/02/2024,0,Street,Upper Thomson Road,LP014A,trench,Severe defect,3,2m x 5m,Aging,Patch area,David Wang,Alex Wang
+NE-MAS2-EXT-WK024-038,05/02/2024,0,Drive,Jurong West Street 91,LP018D,missing_sign,Medium defect,5,4m x 1m,Weathering,Seal crack,Nina Zhang,John Ng
+NE-MAS2-EXT-WK073-009,13/05/2025,1,Avenue,Bukit Timah Road,LP019F,drainage,Severe defect,5,2m x 5m,Heavy load,Repaint lines,Lily Brown,Lily Lim
+S-MAS3-EXT-WK041-007,16/12/2024,0,Expressway,Orchard Road,LP004F,missing_sign,Mild defect,5,2m x 1m,Weathering,Patch area,Nina Lee,Nina Wang
+N-MAS3-EXT-WK070-019,31/10/2024,0,Street,Serangoon Road,LP002A,paint_spillage,Medium defect,2,1m x 4m,Aging,Patch area,Chris Chan,Lily Smith
+NW-MAS1-EXT-WK068-031,10/05/2024,0,Drive,Upper Thomson Road,LP014F,kerb,Medium defect,5,3m x 5m,Weathering,Seal crack,Alex Brown,Emily Johnson
+S-MAS1-EXT-WK067-006,30/04/2025,1,Drive,Sembawang Road,LP011A,drainage,Medium defect,4,3m x 3m,Heavy load,Patch area,James Chan,John Chan
+E-MAS3-EXT-WK069-036,02/02/2024,0,Expressway,Serangoon Road,LP006E,kerb,Severe defect,1,2m x 5m,Heavy load,Repaint lines,John Johnson,Jane Chan
+E-MAS1-EXT-WK066-048,30/10/2024,0,Street,Cecil Street,LP016C,drainage,Mild defect,2,3m x 1m,Aging,Seal crack,Chris Lee,Nina Lee
+E-MAS3-EXT-WK038-020,25/07/2024,1,Street,Tampines Avenue 5,LP019F,paint_spillage,Mild defect,4,1m x 2m,Weathering,Repaint lines,John Smith,Emily Ng
+NW-MAS2-EXT-WK006-002,22/01/2025,1,Drive,Changi Road,LP010B,pothole,Medium defect,3,3m x 1m,Weathering,Repaint lines,Emily Tan,Nina Chan
+E-MAS3-EXT-WK090-033,31/10/2024,1,Expressway,Changi Road,LP012B,missing_sign,Severe defect,3,5m x 5m,Aging,Patch area,Emily Johnson,Alex Johnson
+NE-MAS2-EXT-WK095-015,04/11/2024,1,Street,Holland Road,LP018F,pothole,Medium defect,4,2m x 4m,Weathering,Repaint lines,Lily Tan,David Zhang
+N-MAS2-EXT-WK056-016,26/12/2024,1,Expressway,Sembawang Road,LP011C,missing_sign,Medium defect,5,2m x 1m,Aging,Seal crack,Chris Chan,Sarah Smith
+S-MAS3-EXT-WK009-020,11/03/2024,1,Drive,Serangoon Road,LP016B,missing_sign,Mild defect,2,4m x 4m,Weathering,Repaint lines,Sarah Zhang,James Lee
+W-MAS3-EXT-WK006-035,06/05/2025,1,Drive,Orchard Road,LP008C,pothole,Mild defect,3,2m x 1m,Heavy load,Repaint lines,James Johnson,Alex Chan
+SW-MAS3-EXT-WK049-009,12/09/2024,0,Expressway,Upper Thomson Road,LP017E,paint_spillage,Severe defect,1,3m x 3m,Aging,Repaint lines,John Zhang,John Chan
+SE-MAS2-EXT-WK008-048,27/04/2024,0,Drive,Bukit Timah Road,LP017F,drainage,Severe defect,5,4m x 4m,Heavy load,Seal crack,Chris Brown,Alex Smith
+S-MAS2-EXT-WK098-020,15/11/2024,0,Street,Sembawang Road,LP018F,paint_spillage,Mild defect,3,3m x 2m,Heavy load,Seal crack,Jane Johnson,Emily Johnson
+W-MAS1-EXT-WK087-014,13/04/2025,0,Street,Jurong West Street 91,LP018D,paint_spillage,Medium defect,4,3m x 4m,Aging,Patch area,David Brown,Emily Wang
+S-MAS2-EXT-WK045-014,25/05/2024,0,Expressway,Tampines Avenue 5,LP010D,pothole,Mild defect,1,5m x 1m,Weathering,Repaint lines,David Tan,James Zhang
+N-MAS2-EXT-WK097-038,08/07/2024,0,Expressway,Serangoon Road,LP007A,pothole,Mild defect,3,1m x 2m,Aging,Seal crack,Lily Zhang,Emily Brown
+S-MAS3-EXT-WK055-020,13/08/2024,0,Expressway,Sembawang Road,LP015A,trench,Medium defect,1,3m x 1m,Heavy load,Patch area,Emily Chan,Lily Brown
+SE-MAS1-EXT-WK095-023,16/01/2024,1,Avenue,Tampines Avenue 5,LP015D,paint_spillage,Medium defect,1,2m x 3m,Aging,Seal crack,Jane Tan,Alex Lim
+W-MAS3-EXT-WK086-017,20/02/2025,1,Expressway,Bukit Timah Road,LP006F,paint_spillage,Severe defect,3,1m x 2m,Heavy load,Repaint lines,Nina Lee,Jane Johnson
+W-MAS3-EXT-WK090-012,19/12/2024,0,Avenue,Upper Thomson Road,LP010F,kerb,Severe defect,2,5m x 4m,Weathering,Repaint lines,Lily Wang,Nina Johnson
+W-MAS1-EXT-WK007-003,22/09/2024,1,Drive,Upper Thomson Road,LP019A,pothole,Severe defect,5,5m x 4m,Weathering,Repaint lines,Jane Chan,Emily Wang
+SE-MAS2-EXT-WK049-017,02/04/2024,0,Avenue,Sembawang Road,LP013B,pothole,Mild defect,5,5m x 3m,Aging,Seal crack,Alex Chan,Jane Ng
+N-MAS2-EXT-WK072-019,08/02/2025,0,Avenue,Upper Thomson Road,LP007C,trench,Medium defect,3,2m x 4m,Aging,Seal crack,Lily Lim,Nina Ng
+SE-MAS3-EXT-WK062-024,15/01/2024,0,Avenue,Changi Road,LP014D,drainage,Medium defect,2,4m x 1m,Weathering,Patch area,James Lee,Nina Smith
+N-MAS3-EXT-WK070-005,19/01/2025,0,Street,Holland Road,LP018F,kerb,Severe defect,4,2m x 3m,Weathering,Patch area,Nina Lee,Emily Johnson
+E-MAS2-EXT-WK061-031,19/04/2024,0,Drive,Sembawang Road,LP012F,drainage,Severe defect,4,3m x 3m,Weathering,Patch area,Nina Smith,James Ng
+E-MAS1-EXT-WK018-030,14/03/2024,1,Expressway,Orchard Road,LP015D,paint_spillage,Medium defect,5,1m x 2m,Weathering,Patch area,David Brown,David Lim
+N-MAS2-EXT-WK032-034,11/12/2024,1,Street,Orchard Road,LP001B,paint_spillage,Mild defect,2,5m x 5m,Aging,Seal crack,Sarah Ng,James Chan
+SW-MAS1-EXT-WK006-013,08/07/2024,1,Street,Bukit Timah Road,LP009E,missing_sign,Medium defect,3,3m x 1m,Weathering,Patch area,John Johnson,Sarah Smith
+S-MAS3-EXT-WK039-023,14/05/2024,1,Avenue,Orchard Road,LP007D,pothole,Mild defect,2,2m x 5m,Weathering,Repaint lines,James Smith,Emily Smith
+SE-MAS1-EXT-WK029-028,22/03/2025,1,Drive,Sembawang Road,LP007B,missing_sign,Severe defect,2,5m x 1m,Aging,Repaint lines,John Chan,Emily Ng
+N-MAS2-EXT-WK091-048,05/01/2025,0,Expressway,Upper Thomson Road,LP019A,paint_spillage,Medium defect,3,1m x 4m,Aging,Repaint lines,Lily Zhang,Alex Tan
+NW-MAS2-EXT-WK040-037,08/06/2024,1,Expressway,Serangoon Road,LP009A,paint_spillage,Severe defect,5,4m x 4m,Aging,Repaint lines,Sarah Zhang,Lily Zhang
+NE-MAS1-EXT-WK067-040,15/11/2024,1,Expressway,Sembawang Road,LP012C,drainage,Medium defect,2,4m x 2m,Aging,Seal crack,Lily Zhang,Chris Zhang
+SE-MAS3-EXT-WK053-036,07/01/2024,0,Drive,Sembawang Road,LP018A,drainage,Severe defect,4,5m x 3m,Aging,Seal crack,Chris Lee,James Lee
+N-MAS3-EXT-WK025-037,08/10/2024,0,Drive,Changi Road,LP008D,pothole,Severe defect,1,5m x 4m,Weathering,Seal crack,John Lee,Lily Brown
+SW-MAS3-EXT-WK040-037,10/03/2024,0,Expressway,Serangoon Road,LP003F,drainage,Medium defect,2,1m x 3m,Heavy load,Repaint lines,Chris Ng,Sarah Zhang
+N-MAS2-EXT-WK034-024,08/03/2025,1,Street,Cecil Street,LP008A,kerb,Mild defect,1,1m x 1m,Aging,Repaint lines,Chris Smith,Jane Brown
+SE-MAS3-EXT-WK085-029,02/01/2024,1,Street,Holland Road,LP009A,kerb,Mild defect,1,1m x 2m,Aging,Seal crack,David Wang,Chris Zhang
+S-MAS2-EXT-WK079-011,23/05/2024,0,Street,Changi Road,LP013F,trench,Medium defect,1,1m x 3m,Aging,Patch area,Jane Wang,Jane Lee
+SE-MAS3-EXT-WK017-014,01/07/2024,0,Expressway,Jurong West Street 91,LP010F,paint_spillage,Medium defect,5,2m x 3m,Heavy load,Seal crack,Chris Wang,John Johnson
+NE-MAS2-EXT-WK011-040,14/03/2024,1,Street,Upper Thomson Road,LP014C,pothole,Mild defect,4,4m x 3m,Aging,Seal crack,Nina Lim,James Smith
+SW-MAS1-EXT-WK075-014,17/05/2025,1,Avenue,Holland Road,LP004D,paint_spillage,Severe defect,5,5m x 1m,Aging,Patch area,Lily Zhang,Chris Lee
+NW-MAS3-EXT-WK078-010,01/05/2024,0,Expressway,Holland Road,LP004D,drainage,Severe defect,1,3m x 3m,Aging,Patch area,David Lee,David Chan
+SW-MAS3-EXT-WK077-044,11/01/2024,1,Expressway,Bukit Timah Road,LP002C,missing_sign,Severe defect,5,1m x 3m,Aging,Patch area,Sarah Ng,John Lim
+SW-MAS1-EXT-WK057-023,01/09/2024,0,Drive,Upper Thomson Road,LP003A,paint_spillage,Severe defect,5,3m x 4m,Aging,Patch area,John Wang,Chris Ng
+NE-MAS1-EXT-WK089-001,06/09/2024,1,Street,Holland Road,LP008D,kerb,Mild defect,2,3m x 5m,Weathering,Repaint lines,James Chan,Emily Smith
+W-MAS3-EXT-WK076-040,06/02/2024,1,Street,Holland Road,LP013A,missing_sign,Mild defect,2,4m x 1m,Aging,Repaint lines,Lily Lim,Nina Zhang
+SW-MAS1-EXT-WK055-020,29/03/2025,1,Avenue,Holland Road,LP013D,trench,Severe defect,1,4m x 3m,Heavy load,Repaint lines,Emily Smith,Sarah Chan
+NE-MAS1-EXT-WK053-046,13/11/2024,0,Avenue,Jurong West Street 91,LP010C,paint_spillage,Medium defect,2,1m x 5m,Heavy load,Patch area,David Ng,Jane Wang
+NE-MAS2-EXT-WK009-022,21/12/2024,0,Drive,Orchard Road,LP015D,trench,Severe defect,2,5m x 4m,Weathering,Repaint lines,Jane Ng,Chris Brown
+SW-MAS1-EXT-WK092-048,01/12/2024,1,Avenue,Changi Road,LP017F,drainage,Mild defect,2,3m x 2m,Weathering,Patch area,Nina Lee,Jane Brown
+N-MAS3-EXT-WK012-017,01/11/2024,0,Street,Bukit Timah Road,LP014F,pothole,Severe defect,5,4m x 1m,Weathering,Seal crack,Jane Lim,Jane Tan
+SE-MAS2-EXT-WK062-040,10/06/2024,1,Avenue,Jurong West Street 91,LP015D,drainage,Severe defect,1,2m x 4m,Weathering,Seal crack,Nina Tan,David Chan
+S-MAS2-EXT-WK065-029,24/01/2025,0,Avenue,Cecil Street,LP005F,pothole,Medium defect,5,5m x 4m,Weathering,Patch area,Nina Lim,Alex Lim
+S-MAS3-EXT-WK024-038,23/10/2024,0,Street,Tampines Avenue 5,LP010B,paint_spillage,Mild defect,4,4m x 3m,Aging,Seal crack,Lily Tan,John Wang
+SW-MAS3-EXT-WK042-022,29/04/2025,1,Drive,Sembawang Road,LP007E,pothole,Severe defect,2,4m x 3m,Heavy load,Seal crack,Alex Smith,Alex Lee
+SW-MAS3-EXT-WK040-029,26/03/2025,1,Street,Jurong West Street 91,LP016B,missing_sign,Medium defect,5,4m x 3m,Aging,Seal crack,David Lim,David Zhang
+S-MAS2-EXT-WK073-020,10/09/2024,1,Expressway,Serangoon Road,LP014C,trench,Mild defect,1,5m x 3m,Heavy load,Repaint lines,Emily Brown,Sarah Brown
+SW-MAS3-EXT-WK087-004,25/11/2024,0,Street,Jurong West Street 91,LP005B,missing_sign,Medium defect,3,3m x 4m,Weathering,Patch area,John Johnson,James Lim
+NW-MAS2-EXT-WK031-045,29/07/2024,1,Expressway,Sembawang Road,LP006E,kerb,Mild defect,2,3m x 1m,Aging,Seal crack,John Lim,David Zhang
+SE-MAS3-EXT-WK037-024,05/01/2025,0,Avenue,Sembawang Road,LP006D,kerb,Severe defect,2,1m x 2m,Aging,Repaint lines,James Johnson,John Tan
+S-MAS3-EXT-WK098-009,27/10/2024,0,Drive,Cecil Street,LP015D,paint_spillage,Medium defect,5,4m x 2m,Weathering,Seal crack,Chris Johnson,Nina Chan
+W-MAS1-EXT-WK062-018,29/02/2024,1,Drive,Changi Road,LP002D,drainage,Severe defect,5,2m x 4m,Heavy load,Repaint lines,Alex Lee,John Johnson
+SE-MAS1-EXT-WK001-018,15/04/2024,1,Street,Orchard Road,LP006F,drainage,Mild defect,3,2m x 1m,Heavy load,Seal crack,Alex Lim,John Ng
+NE-MAS1-EXT-WK055-027,02/04/2025,0,Expressway,Serangoon Road,LP003F,paint_spillage,Severe defect,4,4m x 2m,Aging,Patch area,Emily Johnson,John Johnson
+S-MAS3-EXT-WK099-028,01/04/2025,0,Avenue,Orchard Road,LP003F,trench,Mild defect,4,5m x 4m,Weathering,Patch area,Nina Smith,Nina Brown
+NW-MAS2-EXT-WK041-019,04/05/2024,0,Drive,Jurong West Street 91,LP015A,drainage,Mild defect,5,2m x 3m,Heavy load,Seal crack,Jane Ng,Lily Tan
+SW-MAS1-EXT-WK060-005,13/05/2025,1,Street,Changi Road,LP009D,trench,Severe defect,3,4m x 1m,Heavy load,Seal crack,Alex Lim,Alex Lee
+E-MAS2-EXT-WK072-031,01/07/2024,1,Drive,Changi Road,LP009C,pothole,Severe defect,2,1m x 1m,Heavy load,Patch area,Emily Zhang,Jane Chan
+NE-MAS2-EXT-WK088-034,10/03/2025,0,Avenue,Cecil Street,LP004B,trench,Mild defect,1,2m x 1m,Heavy load,Repaint lines,David Wang,Chris Chan
+SE-MAS3-EXT-WK007-006,23/01/2024,1,Street,Orchard Road,LP009D,trench,Severe defect,2,5m x 3m,Aging,Repaint lines,Sarah Lee,James Chan
+NW-MAS2-EXT-WK038-001,18/09/2024,1,Expressway,Holland Road,LP006C,missing_sign,Mild defect,1,4m x 2m,Heavy load,Seal crack,Sarah Chan,John Lee
+SW-MAS3-EXT-WK078-018,05/05/2025,0,Drive,Orchard Road,LP017B,missing_sign,Severe defect,2,1m x 2m,Aging,Repaint lines,David Johnson,Chris Lim
+SW-MAS2-EXT-WK037-038,17/03/2024,1,Avenue,Holland Road,LP002D,missing_sign,Mild defect,3,1m x 1m,Heavy load,Repaint lines,Lily Lee,Emily Wang
+NW-MAS1-EXT-WK079-044,31/03/2024,0,Expressway,Tampines Avenue 5,LP007E,drainage,Medium defect,2,4m x 4m,Weathering,Seal crack,Sarah Ng,Jane Chan
+SE-MAS1-EXT-WK089-049,14/01/2024,0,Drive,Holland Road,LP007B,drainage,Medium defect,2,5m x 4m,Aging,Patch area,James Smith,James Lee
+W-MAS1-EXT-WK040-047,17/01/2024,0,Street,Cecil Street,LP011B,trench,Mild defect,3,3m x 4m,Weathering,Patch area,Jane Smith,Jane Lim
+SW-MAS3-EXT-WK078-032,05/07/2024,1,Expressway,Sembawang Road,LP012E,pothole,Severe defect,1,3m x 2m,Heavy load,Seal crack,Chris Wang,Chris Lim
+S-MAS2-EXT-WK038-036,11/05/2025,0,Drive,Sembawang Road,LP014D,pothole,Severe defect,3,3m x 3m,Heavy load,Patch area,Sarah Smith,Sarah Smith
+SW-MAS3-EXT-WK035-032,28/12/2024,1,Expressway,Orchard Road,LP012A,paint_spillage,Severe defect,5,1m x 4m,Aging,Patch area,David Tan,Lily Zhang
+S-MAS2-EXT-WK025-001,12/08/2024,0,Street,Serangoon Road,LP020F,drainage,Severe defect,2,4m x 1m,Heavy load,Patch area,Jane Zhang,Emily Lee
+S-MAS3-EXT-WK083-033,27/02/2025,0,Drive,Jurong West Street 91,LP007A,trench,Medium defect,4,5m x 2m,Aging,Patch area,Alex Johnson,John Wang
+S-MAS3-EXT-WK002-024,01/06/2024,1,Expressway,Sembawang Road,LP020B,paint_spillage,Severe defect,5,2m x 5m,Aging,Repaint lines,James Lim,Lily Chan
+SW-MAS1-EXT-WK062-011,02/11/2024,0,Expressway,Orchard Road,LP010F,trench,Mild defect,3,3m x 2m,Weathering,Patch area,David Ng,Emily Ng
+N-MAS2-EXT-WK013-031,02/05/2025,1,Street,Cecil Street,LP011A,kerb,Severe defect,1,2m x 4m,Heavy load,Repaint lines,Emily Ng,John Wang
+E-MAS1-EXT-WK013-012,28/08/2024,1,Drive,Tampines Avenue 5,LP009A,pothole,Severe defect,2,4m x 4m,Heavy load,Patch area,Chris Smith,Lily Zhang
+N-MAS3-EXT-WK038-010,27/08/2024,1,Street,Bukit Timah Road,LP007A,pothole,Mild defect,2,3m x 4m,Weathering,Patch area,John Lim,David Wang
+N-MAS3-EXT-WK071-030,08/07/2024,1,Drive,Upper Thomson Road,LP014C,missing_sign,Severe defect,4,2m x 4m,Weathering,Seal crack,Sarah Lee,James Lim
+N-MAS3-EXT-WK016-042,18/06/2024,0,Avenue,Changi Road,LP004B,pothole,Medium defect,1,2m x 4m,Aging,Patch area,James Smith,Jane Wang
+E-MAS3-EXT-WK072-002,03/07/2024,1,Street,Orchard Road,LP011E,drainage,Medium defect,4,2m x 1m,Weathering,Repaint lines,David Brown,Emily Johnson
+E-MAS2-EXT-WK058-016,25/11/2024,0,Expressway,Changi Road,LP008C,trench,Medium defect,5,5m x 2m,Aging,Patch area,David Lee,John Lim
+S-MAS2-EXT-WK026-020,03/09/2024,0,Expressway,Jurong West Street 91,LP006F,missing_sign,Medium defect,3,4m x 5m,Weathering,Repaint lines,James Zhang,Chris Lee
+E-MAS1-EXT-WK049-037,01/12/2024,0,Street,Tampines Avenue 5,LP018F,paint_spillage,Mild defect,2,4m x 1m,Weathering,Repaint lines,Jane Smith,Nina Ng
+SW-MAS3-EXT-WK034-015,07/09/2024,1,Drive,Serangoon Road,LP017C,paint_spillage,Severe defect,3,5m x 3m,Heavy load,Seal crack,Nina Wang,John Ng
+N-MAS2-EXT-WK004-027,03/02/2024,1,Avenue,Upper Thomson Road,LP012C,drainage,Severe defect,3,5m x 3m,Aging,Patch area,David Tan,Nina Ng
+SW-MAS1-EXT-WK062-025,03/01/2024,0,Expressway,Bukit Timah Road,LP007D,kerb,Mild defect,1,3m x 4m,Weathering,Repaint lines,Alex Tan,Emily Lim
+W-MAS2-EXT-WK001-015,09/02/2025,1,Street,Upper Thomson Road,LP012F,drainage,Medium defect,3,5m x 5m,Aging,Repaint lines,James Brown,Jane Brown
+NW-MAS2-EXT-WK004-045,07/03/2025,1,Avenue,Cecil Street,LP016A,pothole,Mild defect,3,4m x 1m,Weathering,Repaint lines,Nina Johnson,Lily Lee
+W-MAS1-EXT-WK044-029,27/02/2025,0,Street,Sembawang Road,LP002B,pothole,Mild defect,3,2m x 4m,Aging,Repaint lines,Sarah Zhang,Emily Chan
+N-MAS1-EXT-WK002-001,15/10/2024,0,Expressway,Orchard Road,LP009D,pothole,Medium defect,2,4m x 3m,Aging,Repaint lines,Sarah Smith,Sarah Wang
+NE-MAS1-EXT-WK079-040,07/01/2025,1,Drive,Orchard Road,LP001B,trench,Mild defect,2,3m x 5m,Weathering,Repaint lines,Chris Zhang,Emily Tan
+NW-MAS1-EXT-WK085-047,09/09/2024,0,Expressway,Holland Road,LP013E,paint_spillage,Severe defect,5,4m x 2m,Aging,Seal crack,Sarah Johnson,Emily Johnson
+NW-MAS3-EXT-WK020-005,07/03/2024,1,Avenue,Orchard Road,LP015B,pothole,Medium defect,5,5m x 5m,Aging,Patch area,Nina Chan,James Lee
+E-MAS2-EXT-WK018-020,05/10/2024,0,Expressway,Serangoon Road,LP004C,trench,Medium defect,4,2m x 5m,Heavy load,Patch area,Lily Ng,John Smith
+NE-MAS3-EXT-WK027-048,01/12/2024,0,Drive,Jurong West Street 91,LP005B,kerb,Severe defect,4,2m x 3m,Heavy load,Patch area,Emily Brown,James Brown
+NW-MAS3-EXT-WK080-005,20/10/2024,1,Street,Jurong West Street 91,LP005F,paint_spillage,Medium defect,4,5m x 2m,Aging,Seal crack,Chris Johnson,Jane Smith
+E-MAS3-EXT-WK080-032,22/02/2025,1,Street,Orchard Road,LP007D,trench,Severe defect,5,1m x 1m,Aging,Patch area,John Lim,Emily Ng
+W-MAS3-EXT-WK091-039,30/04/2024,0,Drive,Sembawang Road,LP012B,pothole,Mild defect,4,1m x 5m,Heavy load,Patch area,John Tan,Chris Ng
+SE-MAS1-EXT-WK052-010,12/01/2024,0,Drive,Tampines Avenue 5,LP007D,kerb,Medium defect,5,4m x 5m,Weathering,Repaint lines,Sarah Wang,John Lim
+SE-MAS3-EXT-WK041-039,30/04/2025,1,Street,Bukit Timah Road,LP014B,pothole,Mild defect,1,1m x 4m,Aging,Patch area,Nina Brown,Nina Brown
+NW-MAS3-EXT-WK075-025,07/07/2024,0,Expressway,Upper Thomson Road,LP013E,missing_sign,Medium defect,1,1m x 3m,Heavy load,Repaint lines,Nina Lee,Emily Tan
+SE-MAS3-EXT-WK083-029,03/11/2024,1,Avenue,Changi Road,LP016B,pothole,Mild defect,4,1m x 4m,Weathering,Patch area,Sarah Smith,John Lim
+SE-MAS1-EXT-WK044-035,12/05/2024,0,Expressway,Sembawang Road,LP014A,kerb,Medium defect,3,2m x 4m,Heavy load,Repaint lines,Chris Lee,James Tan
+NW-MAS2-EXT-WK084-036,07/04/2025,1,Drive,Bukit Timah Road,LP012F,drainage,Mild defect,5,2m x 4m,Heavy load,Patch area,David Lim,Lily Lee
+SW-MAS3-EXT-WK041-050,13/02/2024,1,Expressway,Orchard Road,LP006A,trench,Medium defect,5,5m x 3m,Heavy load,Patch area,Lily Lee,Chris Lee
+W-MAS1-EXT-WK043-031,11/11/2024,1,Avenue,Changi Road,LP012D,paint_spillage,Mild defect,3,2m x 3m,Heavy load,Seal crack,Lily Tan,Sarah Johnson
+W-MAS1-EXT-WK038-003,08/11/2024,0,Expressway,Sembawang Road,LP012F,trench,Mild defect,1,3m x 2m,Aging,Patch area,Sarah Tan,Sarah Ng
+S-MAS1-EXT-WK096-013,20/04/2024,0,Expressway,Cecil Street,LP015D,paint_spillage,Medium defect,4,2m x 2m,Weathering,Seal crack,Sarah Lim,Jane Lim
+NW-MAS2-EXT-WK041-042,31/05/2024,0,Expressway,Changi Road,LP016B,kerb,Medium defect,4,4m x 3m,Aging,Patch area,Alex Wang,Alex Lee

@@ -3,13 +3,12 @@
 
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assist.css') }}">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-    <!-- removes favicon error -->
-    <link rel="shortcut icon" href="#" />
 
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
@@ -19,7 +18,7 @@
     <div class="top-right">
         <a href="/" class="nav-button">home</a>
     </div>
-
+    <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
     <h1>PDF Picker</h1>
     <button onclick="openDialog()" id="uploadButton">Pick PDF Files</button>
     <p id="message"></p>

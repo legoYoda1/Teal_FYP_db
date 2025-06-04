@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assist.css') }}">
     <!-- DataTables CSS -->
@@ -9,10 +10,11 @@
 
 </head>
 <body>
-    <h1>Historical Report Dashboard</h1>
+    <h1>Historical Report Dashboard - Assisted</h1>
     <div class="top-right">
         <a href="/" class="nav-button">home</a>
     </div>
+    <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
     <form method="POST" style="margin-top: 20px;  margin-bottom: 50px;">
          <!-- Time Interval Dropdown -->
     <label for="time_interval">Time Interval:</label>

@@ -2,14 +2,16 @@
 <html>
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
 </head>
 <body>
-    <h1 id="page-title">Welcome</h1>
+    <h1 id="page-title">Historical Report Dashboard</h1>
     <div class="top-left">
         <a href="/report_upload" class="report-button">Upload Report</a>
     </div>
+    <div class="top-right"><img src="static\company_logo.png" id="logo"></div>
 
     <div class="navbar">
         <h2>Choose Dashboard Style</h3>

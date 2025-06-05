@@ -91,17 +91,17 @@
 
     <div class="query-row" style="display: inline-flex;">
         <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT l.zone, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.zone ORDER BY defect_count DESC;">
+            <input type="hidden" name="editable_query" value="SELECT l.location, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.location ORDER BY defect_count DESC;">
             <!-- Include filter values -->
             <input type="hidden" name="time_interval" id="form_time_interval">
             <input type="hidden" name="start_date" id="form_start_date">
             <input type="hidden" name="end_date" id="form_end_date">
             <input type="hidden" name="repeated_defect" id="form_repeated_defect">
             <input type="hidden" name="zone" id="form_zone">
-            <input type="hidden" name="chart" id="form_chart" value="df_merged = df.merge(df_location[['location_id', 'zone']], on='location_id', how='left'); df_merged['repeated_defect'] = df_merged['repeated_defect'].map({0: 'No', 1: 'Yes'}); fig = px.sunburst(df_merged, path=['zone', 'cause_of_defect', 'repeated_defect'], values=None, color='zone', title='Defect Distribution by Zone, Cause, and Repeated Status'); fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))">
+            <input type="hidden" name="chart" id="form_chart" value="df_merged = df.merge(df_location[['location_id', 'location']], on='location_id', how='left'); df_merged['repeated_defect'] = df_merged['repeated_defect'].map({0: 'No', 1: 'Yes'}); df_merged['count'] = 1; fig = px.sunburst(df_merged, path=['location', 'cause_of_defect', 'repeated_defect'], values='count', color='location', title='Defect Distribution by location, Cause, and Repeated Status'); fig.update_traces(hovertemplate='<b>%{label}</b><br>Count: %{value}<extra></extra>'); fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))">
             <button type="submit" class="query-button">Defect Location Frequency</button>
         </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT l.zone, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.zone ORDER BY defect_count DESC;`)">✏️ Edit</button>
+        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT l.location, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.location ORDER BY defect_count DESC;`)">✏️ Edit</button>
     </div>
 </div>
 

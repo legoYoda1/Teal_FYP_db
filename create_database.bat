@@ -32,13 +32,13 @@ REM Activate virtual environment
 call .venv\Scripts\activate
 
 REM Run ETL scripts
-call python .\etl\create_database.py
+call python .\data\create_database.py
 if errorlevel 1 (
     echo ❌ Failed to create database.
     exit /b 1
 )
 
-call python .\etl\create_query_db.py
+call python .\data\create_query_db.py
 if errorlevel 1 (
     echo ❌ Failed to create query database.
     exit /b 1

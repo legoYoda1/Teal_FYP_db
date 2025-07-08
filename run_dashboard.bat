@@ -4,8 +4,17 @@ if defined VIRTUAL_ENV (
     echo.
 ) else (
     echo No Python virtual environment is currently active.
+    echo Activating the virtual environment...
 )
-call.venv\Scripts\activate
+
+:: Check if venv exists
+if not exist .venv\Scripts\activate (
+    echo Virtual environment not found. Running create_database.bat...
+    call create_database.bat
+)
+
+:: Activate the virtual environment
+call .venv\Scripts\activate
 
 set FLASK_ENV=development
 set FLASK_APP=main.py

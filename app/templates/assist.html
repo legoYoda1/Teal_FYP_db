@@ -132,9 +132,10 @@
 
 <script>
 $(document).ready(function () {
-    fetchAssistColumnsAndBuildTable();
+    // Destroy and rebuild table on load
+    buildAssistDataTable();
 
-    function fetchAssistColumnsAndBuildTable() {
+    function buildAssistDataTable() {
         $.ajax({
             url: "/api/assist_query_data",
             type: "POST",
@@ -151,25 +152,21 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.columns && response.columns.length > 0) {
-                    // Inject table headers
+                    // Build headers
                     let headerRow = '';
                     response.columns.forEach(col => {
                         headerRow += `<th>${col}</th>`;
                     });
-                    $("#assist-table-headers").html(headerRow);
 
-                    // Destroy old DataTable
-                    if ($.fn.DataTable.isDataTable("#assist-data-table")) {
-                        $('#assist-data-table').DataTable().destroy();
-                        $('#assist-data-table').empty();
-                        $('#assist-data-table').append('<thead><tr id="assist-table-headers"></tr></thead>');
-                        $("#assist-table-headers").html(headerRow);
-                    }
+                    // Reset table structure
+                    $('#assist-data-table').empty();
+                    $('#assist-data-table').append('<thead><tr id="assist-table-headers"></tr></thead>');
+                    $('#assist-table-headers').html(headerRow);
 
-                    // Column definitions
+                    // Define columns
                     const columnsDef = response.columns.map(col => ({ data: col }));
 
-                    // Reinitialize
+                    // Initialize DataTable
                     $('#assist-data-table').DataTable({
                         serverSide: true,
                         processing: true,
@@ -192,11 +189,11 @@ $(document).ready(function () {
                         fixedHeader: true
                     });
                 } else {
-                    $("#assist-data-table").html("<p style='color:red;'>No columns returned.</p>");
+                    $('#assist-data-table').html("<p style='color:red;'>No columns returned.</p>");
                 }
             },
             error: function () {
-                $("#assist-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+                $('#assist-data-table').html("<p style='color:red;'>Failed to load data.</p>");
             }
         });
     }

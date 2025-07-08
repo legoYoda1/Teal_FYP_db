@@ -75,10 +75,6 @@ def generate_charts():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-@bp.route("/report_upload", methods=["GET", "POST"])
-def report_upload_page():
-    return render_template('report_upload.html')
-
 # ==== CUSTOM DASHBOARD ROUTES ====
 
 @bp.route("/custom", methods=["GET", "POST"])

@@ -18,9 +18,6 @@ def create_app():
 
     from app.routes.dashboard_routes import bp as dashboard_routes
     app.register_blueprint(dashboard_routes)
-
-    from app.routes.report_upload_routes import bp as report_uploads_routes_bp
-    app.register_blueprint(report_uploads_routes_bp)
     
     socketio.init_app(app) 
 

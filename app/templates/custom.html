@@ -14,11 +14,11 @@
         <a href="/" class="nav-button">home</a>
     </div>
     <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
-    <form method="POST">
-        <textarea name="sql_query" placeholder="Enter your SELECT SQL query here" id="sql_query"></textarea><br>
-        <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
-        <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
-    </form>
+    <form id="sql-query-form" method="POST">
+    <textarea name="sql_query" placeholder="Enter your SELECT SQL query here" id="sql_query"></textarea><br>
+    <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
+    <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
+</form>
 
     <!-- Legend Icon -->
 <button type="button" id="legend-btn" title="View database schema">Legend</button>
@@ -37,22 +37,15 @@
         <div class="error">{{ error }}</div>
     {% endif %}
 
-    <div class="table-container">
-        {{ table|safe }}
-    </div>
+    <table id="custom-data-table" class="data-table display" style="width:100%">
+    <thead><tr id="custom-table-headers"></tr></thead>
+</table>
+
 
     <div><h2>Text to SQL Generator</h2></div>
     <input type="text" id="prompt-input" placeholder="Enter your prompt here" value="{{ prompt }}" required>
     <button id="generate-query-btn" type="submit">Generate SQL Query</button>
 
-   <!-- <div class="chart-container" style="margin-top: 20px; margin-bottom: 10px;">
-        <input type="hidden" id="final-sql-query" value="{{ final_query }}">
-        <button id="show-charts-btn">Show Charts</button>
-        <h2 id="chart-title"></h2>
-        <div class="chart" id="chart-div"></div>
-    </div> -->
-
-    <!-- Generate Query Button Script -->
     <script>
 document.getElementById("generate-query-btn").addEventListener("click", function () {
     const prompt_input = document.getElementById("prompt-input").value;
@@ -103,12 +96,82 @@ document.getElementById("show-charts-btn").addEventListener("click", function ()
 
     <!-- run query / reset button script -->
     <script>
-document.getElementById("submit-btn").addEventListener("click", function () {
-    document.querySelector("textarea[name='sql_query']").setAttribute("required", "required");
-});
+$(document).ready(function () {
+    // Intercept form submit for "Run Query"
+    $("#sql-query-form").on("submit", function (e) {
+        e.preventDefault();
 
-document.getElementById("reset-btn").addEventListener("click", function () {
-    document.querySelector("textarea[name='sql_query']").removeAttribute("required");
+        const action = document.activeElement.value; // "submit" or "reset"
+        const query = $("#sql_query").val();
+
+        $.ajax({
+            url: "/custom",
+            type: "POST",
+            data: {
+                sql_query: query,
+                action: action
+            },
+            success: function () {
+                // After query is accepted, refresh the DataTable
+                rebuildCustomDataTable();
+            },
+            error: function () {
+                alert("Failed to submit SQL query.");
+            }
+        });
+    });
+
+    // Initial table build on page load
+    rebuildCustomDataTable();
+
+    function rebuildCustomDataTable() {
+        $.ajax({
+            url: "/api/custom_query_data",
+            type: "POST",
+            data: { draw: 1, start: 0, length: 10 },
+            success: function (response) {
+                if (response.columns && response.columns.length > 0) {
+                    // Inject table headers
+                    let headerRow = '';
+                    response.columns.forEach(col => {
+                        headerRow += `<th>${col}</th>`;
+                    });
+                    $("#custom-table-headers").html(headerRow);
+
+                    // Destroy old DataTable (if exists)
+                    if ($.fn.DataTable.isDataTable("#custom-data-table")) {
+                        $('#custom-data-table').DataTable().destroy();
+                        $('#custom-data-table').empty(); // clear previous structure
+                        $('#custom-data-table').append('<thead><tr id="custom-table-headers"></tr></thead>'); // rebuild structure
+                        $("#custom-table-headers").html(headerRow); // re-apply headers
+                    }
+
+                    // Build column definitions
+                    let columnsDef = response.columns.map(col => ({ data: col }));
+
+                    // Reinitialize DataTable
+                    $('#custom-data-table').DataTable({
+                        serverSide: true,
+                        processing: true,
+                        ajax: {
+                            url: "/api/custom_query_data",
+                            type: "POST"
+                        },
+                        columns: columnsDef,
+                        scrollX: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50, 100],
+                        fixedHeader: true
+                    });
+                } else {
+                    $("#custom-data-table").html("<p style='color:red;'>No columns returned.</p>");
+                }
+            },
+            error: function () {
+                $("#custom-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+            }
+        });
+    }
 });
 </script>
 
@@ -118,17 +181,47 @@ document.getElementById("reset-btn").addEventListener("click", function () {
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('.data-table').DataTable({
-            paging: true,
-            searching: true,
-            ordering: true,
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            scrollX: true,
-            fixedHeader: true
-        });
+$(document).ready(function () {
+    // First fetch to get column names
+    $.ajax({
+        url: "/api/custom_query_data",
+        type: "POST",
+        data: { draw: 1, start: 0, length: 10 },
+        success: function (response) {
+            if (response.columns && response.columns.length > 0) {
+                // Inject table headers
+                let headerRow = '';
+                response.columns.forEach(col => {
+                    headerRow += `<th>${col}</th>`;
+                });
+                $("#custom-table-headers").html(headerRow);
+
+                // Build column definitions
+                let columnsDef = response.columns.map(col => ({ data: col }));
+
+                // Initialize DataTable
+                $('#custom-data-table').DataTable({
+                    serverSide: true,
+                    processing: true,
+                    ajax: {
+                        url: "/api/custom_query_data",
+                        type: "POST"
+                    },
+                    columns: columnsDef,
+                    scrollX: true,
+                    pageLength: 10,
+                    lengthMenu: [5, 10, 25, 50, 100],
+                    fixedHeader: true
+                });
+            } else {
+                $("#custom-data-table").html("<p style='color:red;'>No columns returned. Did you run a SELECT query?</p>");
+            }
+        },
+        error: function () {
+            $("#custom-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+        }
     });
+});
 </script>
 
 <!-- Modal Popup Script -->

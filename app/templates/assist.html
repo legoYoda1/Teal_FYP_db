@@ -56,66 +56,24 @@
         <button type="submit" style="background-color: #e02224;">Filter Reports</button>
     </form>
 
-    <label style="font-size: 1.2em; font-weight: bold;">Quick Queries:</label>
-    <div class="quick-queries" style="display: flexbox;">
+    <label style="font-size: 1.2em; font-weight: bold;">Saved Queries:</label>
+<div id="saved-queries-container"></div>
 
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <input type="hidden" name="zone" id="form_zone">
-            <input type="hidden" name="chart" id="form_chart" value="fig = px.bar(df.groupby('cause_of_defect').size().reset_index(name='count'), x='cause_of_defect', y='count', title='Causes of Defect', labels={'cause_of_defect': 'Cause of Defect', 'count': 'Count'})">
-            <button type="submit" class="query-button">Most Common Defect</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1`)">✏️ Edit</button>
-    </div>
-
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT * FROM report_fact WHERE repeated_defect = 1">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <input type="hidden" name="zone" id="form_zone">
-            <input type="hidden" name="chart" id="form_chart" value="fig = px.line(df[df['repeated_defect'] == 1].assign(month=lambda d: pd.to_datetime(d['date_id'].astype(str), format='%Y%m%d').dt.to_period('M').astype(str)).groupby(['month', 'cause_of_defect']).size().reset_index(name='count'), x='month', y='count', color='cause_of_defect', title='Monthly Trend of Repeated Defects by Cause')">
-            <button type="submit" class="query-button">Repeated Defects</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT * FROM report_fact WHERE repeated_defect = 1`)">✏️ Edit</button>
-    </div>
-
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT l.location, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.location ORDER BY defect_count DESC;">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <input type="hidden" name="zone" id="form_zone">
-            <input type="hidden" name="chart" id="form_chart" value="df_merged = df.merge(df_location[['location_id', 'location']], on='location_id', how='left'); df_merged['repeated_defect'] = df_merged['repeated_defect'].map({0: 'No', 1: 'Yes'}); df_merged['count'] = 1; fig = px.sunburst(df_merged, path=['location', 'cause_of_defect', 'repeated_defect'], values='count', color='location', title='Defect Distribution by location, Cause, and Repeated Status'); fig.update_traces(hovertemplate='<b>%{label}</b><br>Count: %{value}<extra></extra>'); fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))">
-            <button type="submit" class="query-button">Defect Location Frequency</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT l.location, COUNT(*) AS defect_count FROM report_fact r JOIN location_dim l ON r.location_id = l.location_id GROUP BY l.location ORDER BY defect_count DESC;`)">✏️ Edit</button>
-    </div>
-</div>
+<button onclick="openQueryModal()" class="edit-button" style="margin: 10px;">➕ Add Query</button>
 
 <!-- Modal -->
-<div id="editorModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeEditor()">&times;</span>
-        <form method="POST">
-            <label for="editable_query">Edit SQL Query:</label><br>
-            <textarea name="editable_query" id="editable_query_input" rows="4" style="width: 100%; font-family: monospace;"></textarea>
-            <br><br>
-            <button type="submit" class="query-button">Run Edited Query</button>
-        </form>
-    </div>
+<div id="queryModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeQueryModal()">&times;</span>
+    <h3>Add New Query</h3>
+    <form id="save-query-form">
+        <input type="hidden" name="id" id="edit-query-id">
+      <input class="modal-input" type="text" name="label" placeholder="Query Label" required><br>
+      <textarea class="modal-input" name="sql_query" placeholder="SQL Query" rows="4" required></textarea><br>
+      <textarea class="modal-input" name="chart_code" placeholder="Chart Code (Optional)" rows="4"></textarea><br>
+      <button type="submit" class="modal-button" onclick="closeQueryModal()">Save Query</button>
+    </form>
+  </div>
 </div>
 
 
@@ -123,9 +81,13 @@
         <div class="error">{{ error }}</div>
     {% endif %}
 
-    <div class="table-container">
-        {{ table|safe }}
-    </div>
+    <table id="assist-data-table" class="data-table display" style="width:100%">
+        <thead><tr id="assist-table-headers"></tr></thead>
+    </table>
+
+    <div id="loader" class="loader-overlay">
+  <div class="spinner"></div>
+</div>
 
     <button id="show-charts-btn" onclick="renderChart()" style="margin-bottom: 10px; background-color: #e02224;">Show Charts</button>
     <div class="chart" id="chart-div"></div>
@@ -169,43 +131,124 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('.data-table').DataTable({
-            paging: true,
-            searching: true,
-            ordering: true,
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            scrollX: true,
-            fixedHeader: true
+$(document).ready(function () {
+    fetchAssistColumnsAndBuildTable();
+
+    function fetchAssistColumnsAndBuildTable() {
+        $.ajax({
+            url: "/api/assist_query_data",
+            type: "POST",
+            data: {
+                draw: 1,
+                start: 0,
+                length: 10,
+                editable_query: $("input[name='editable_query']").val() || "SELECT * FROM report_fact",
+                time_interval: $("#time_interval").val(),
+                start_date: $("#start_date").val(),
+                end_date: $("#end_date").val(),
+                repeated_defect: $("#repeated_defect").val(),
+                zone: $("#zone").val()
+            },
+            success: function (response) {
+                if (response.columns && response.columns.length > 0) {
+                    // Inject table headers
+                    let headerRow = '';
+                    response.columns.forEach(col => {
+                        headerRow += `<th>${col}</th>`;
+                    });
+                    $("#assist-table-headers").html(headerRow);
+
+                    // Destroy old DataTable
+                    if ($.fn.DataTable.isDataTable("#assist-data-table")) {
+                        $('#assist-data-table').DataTable().destroy();
+                        $('#assist-data-table').empty();
+                        $('#assist-data-table').append('<thead><tr id="assist-table-headers"></tr></thead>');
+                        $("#assist-table-headers").html(headerRow);
+                    }
+
+                    // Column definitions
+                    const columnsDef = response.columns.map(col => ({ data: col }));
+
+                    // Reinitialize
+                    $('#assist-data-table').DataTable({
+                        serverSide: true,
+                        processing: true,
+                        ajax: {
+                            url: "/api/assist_query_data",
+                            type: "POST",
+                            data: function (d) {
+                                d.editable_query = $("input[name='editable_query']").val() || "SELECT * FROM report_fact";
+                                d.time_interval = $("#time_interval").val();
+                                d.start_date = $("#start_date").val();
+                                d.end_date = $("#end_date").val();
+                                d.repeated_defect = $("#repeated_defect").val();
+                                d.zone = $("#zone").val();
+                            }
+                        },
+                        columns: columnsDef,
+                        scrollX: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50, 100],
+                        fixedHeader: true
+                    });
+                } else {
+                    $("#assist-data-table").html("<p style='color:red;'>No columns returned.</p>");
+                }
+            },
+            error: function () {
+                $("#assist-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+            }
         });
-    });
+    }
+});
 </script>
 
-<!-- Editable query Script -->
+<!-- Query Modal Script -->
 <script>
-    function openEditor(queryText) {
-        const modal = document.getElementById("editorModal");
-        document.getElementById("editable_query_input").value = queryText;
-        modal.style.display = "block";
-    }
+function openQueryModal() {
+    document.getElementById("queryModal").style.display = "block";
+}
 
-    function closeEditor() {
-        document.getElementById("editorModal").style.display = "none";
-    }
+function closeQueryModal() {
+    document.getElementById("queryModal").style.display = "none";
+}
 
-    // Optional: Close when clicking outside modal
-    window.onclick = function(event) {
-        const modal = document.getElementById("editorModal");
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
+window.onclick = function(event) {
+    const modal = document.getElementById("queryModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
     }
+}
+
+function openEditorFromDataset(button) {
+    const id = button.dataset.id;
+    const label = button.dataset.label;
+    const sql_query = decodeURIComponent(button.dataset.sql);
+    const chart_code = decodeURIComponent(button.dataset.chart);
+
+    // Show modal and prefill fields
+    openQueryModal();
+    document.querySelector("#edit-query-id").value = id;
+    document.querySelector("#save-query-form input[name='label']").value = label;
+    document.querySelector("#save-query-form textarea[name='sql_query']").value = sql_query;
+    document.querySelector("#save-query-form textarea[name='chart_code']").value = chart_code || '';
+}
 </script>
 
+<!-- Loader CSS -->
+<script>
+function showLoader() {
+    document.getElementById("loader").style.display = "flex";
+}
+function hideLoader() {
+    document.getElementById("loader").style.display = "none";
+}</script>
+
+<!-- query filters script -->
 <script>
     document.querySelectorAll(".quick-form").forEach(form => {
         form.addEventListener("submit", function () {
+            showLoader();
             form.querySelector("#form_time_interval").value = document.querySelector("#time_interval").value;
             form.querySelector("#form_start_date").value = document.querySelector("#start_date").value;
             form.querySelector("#form_end_date").value = document.querySelector("#end_date").value;
@@ -215,5 +258,69 @@
         });
     });
 </script>
+
+<!-- Save Query Script -->
+ <script>
+function loadSavedQueries() {
+    fetch('/api/saved_queries')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("saved-queries-container");
+            container.innerHTML = "";
+            data.forEach(q => {
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/assist";
+                form.className = "quick-form";
+                form.innerHTML = `
+                    <input type="hidden" name="editable_query" value="${encodeURIComponent(q.sql_query)}">
+                    <input type="hidden" name="time_interval" id="form_time_interval">
+                    <input type="hidden" name="start_date" id="form_start_date">
+                    <input type="hidden" name="end_date" id="form_end_date">
+                    <input type="hidden" name="repeated_defect" id="form_repeated_defect">
+                    <input type="hidden" name="zone" id="form_zone">
+                    <input type="hidden" name="chart" id="form_chart" value="${q.chart_code}">
+                    <button type="submit" class="query-button">${q.label}</button>
+                    <button type="button" class="edit-button" data-id="${q.id}" data-label="${q.label}" data-sql="${encodeURIComponent(q.sql_query)}" data-chart="${encodeURIComponent(q.chart_code)}" onclick="openEditorFromDataset(this)">✏️ Edit</button>
+                    <button type="button" class="delete-button" style="margin-bottom: 10px" onclick="deleteQuery(${q.id})">Delete</button>
+                `;
+                container.appendChild(form);
+            });
+        });
+}
+
+function deleteQuery(id) {
+    fetch(`/api/saved_queries/${id}`, { method: 'DELETE' })
+        .then(() => loadSavedQueries());
+}
+
+document.getElementById("save-query-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    showLoader();
+
+    const formData = new FormData(e.target);
+    const payload = Object.fromEntries(formData.entries());
+
+    // Use PATCH for edit, POST for new
+    const isEdit = payload.id && payload.id.trim() !== "";
+    const method = isEdit ? "PATCH" : "POST";
+    const url = isEdit ? `/api/saved_queries/${payload.id}` : `/api/saved_queries`;
+
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    }).then(() => {
+        e.target.reset();
+        document.querySelector("#edit-query-id").value = ""; // clear hidden id
+        loadSavedQueries();
+        hideLoader();
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", loadSavedQueries);
+</script>
+
 </body>
 </html>

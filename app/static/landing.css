@@ -28,5 +28,73 @@
 }
 
 .navbar {
-    margin-top: 10em;
+    margin-top: 8em;
+}
+
+.overview-container {
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #202938;
+    color: #fff;
+    width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.stats-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+.stat-card {
+    background-color: #1b2a3a;
+    padding: 20px;
+    border-radius: 10px;
+    flex: 1 1 250px;
+    min-width: 200px;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background-color: #23384f;
+}
+
+.stat-card h3 {
+    font-size: 1.6em;  
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1b64ef;
+}
+
+.stat-card p {
+    font-size: 2.4em;         
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
 }

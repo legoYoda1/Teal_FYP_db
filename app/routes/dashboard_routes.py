@@ -12,19 +12,45 @@ from urllib.parse import unquote
 
 bp = Blueprint('dashboard_routes', __name__)
 
+# ==== LANDING PAGE ROUTES ====
+
 @bp.route("/")
 def index():
     return render_template("landing.html")
 
-@bp.route("/generate_query", methods=["POST"])
-def generate_query():
-    try:
-        prompt = request.json.get("prompt")
-        query = get_query_suggestions(prompt)
+@bp.route("/api/overview_stats")
+def overview_stats():
+    conn = sqlite3.connect(current_app.config["DB_PATH"])
+    conn.row_factory = sqlite3.Row
+    stats = {}
 
-        return jsonify({"success": True, "query": query})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+    # Total defects
+    total_defects_row = conn.execute("SELECT COUNT(*) AS count FROM report_fact").fetchone()
+    stats["total_defects"] = total_defects_row["count"] if total_defects_row else 0
+
+    # Most common defect type
+    most_common_defect_row = conn.execute("""
+        SELECT cause_of_defect, COUNT(*) as count
+        FROM report_fact
+        GROUP BY cause_of_defect
+        ORDER BY count DESC
+        LIMIT 1
+    """).fetchone()
+    stats["most_common_defect"] = most_common_defect_row["cause_of_defect"] if most_common_defect_row else "N/A"
+
+    # Top hotspot
+    hotspot_row = conn.execute("""
+        SELECT l.zone, COUNT(*) as count
+        FROM report_fact r
+        JOIN location_dim l ON r.location_id = l.location_id
+        GROUP BY l.zone
+        ORDER BY count DESC
+        LIMIT 1;
+    """).fetchone()
+    stats["hotspot"] = dict(hotspot_row) if hotspot_row else {}
+
+    conn.close()
+    return jsonify(stats)
     
 @bp.route("/generate_charts", methods=["POST"])
 def generate_charts():
@@ -133,6 +159,16 @@ def custom_query_data():
             "columns": [],
             "error": str(e)
         })
+    
+@bp.route("/generate_query", methods=["POST"])
+def generate_query():
+    try:
+        prompt = request.json.get("prompt")
+        query = get_query_suggestions(prompt)
+
+        return jsonify({"success": True, "query": query})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
     
 # ==== ASSIST DASHBOARD ROUTES ====    
 

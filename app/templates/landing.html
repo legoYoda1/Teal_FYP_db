@@ -8,6 +8,20 @@
 </head>
 <body>
     <h1 id="page-title">Historical Report Dashboard</h1>
+    <div id="stats-summary" class="stats-flex">
+    <div class="stat-card fade-in">
+        <h3>Total Defects</h3>
+        <p><span id="total-defects">0</span></p>
+    </div>
+    <div class="stat-card fade-in">
+        <h3>Most Common Defect</h3>
+        <p id="common-defect">--</p>
+    </div>
+    <div class="stat-card fade-in">
+    <h3>Defect Hotspot</h3>
+    <p id="hotspot">--</p>
+</div>
+</div>
     <div class="top-right">
         <a href="/report_upload" class="report-button">Upload Report</a>
     </div>
@@ -18,5 +32,45 @@
         <a href="/assist" class="nav-button">assisted mode</a>
         <a href="/custom" class="nav-button">custom mode</a>
     </div>
+
+    <script>
+function animateCount(id, endValue, duration = 1000) {
+    const el = document.getElementById(id);
+    const startValue = 0;
+    const range = endValue - startValue;
+    let startTime = null;
+
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        const percent = Math.min(progress / duration, 1);
+        const current = Math.floor(percent * range);
+        el.textContent = current.toLocaleString();
+        if (percent < 1) {
+            window.requestAnimationFrame(step);
+        }
+    }
+
+    window.requestAnimationFrame(step);
+}
+
+fetch('/api/overview_stats')
+    .then(response => response.json())
+    .then(data => {
+        animateCount("total-defects", data.total_defects);
+        document.getElementById("common-defect").textContent = data.most_common_defect;
+
+        const hotspot = data.hotspot;
+const hotspotItem = document.getElementById("hotspot");
+if (hotspot && hotspot.zone) {
+    hotspotItem.textContent = `Zone ${hotspot.zone}`;
+} else {
+    hotspotItem.textContent = "--";
+}
+    })
+    .catch(err => {
+        console.error(err);
+    });
+</script>
 </body>
 </html>

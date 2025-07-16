@@ -1,6 +1,22 @@
 import requests
 import numpy as np
 import json
+import hashlib
+
+# Naive in-memory cache (clears on server restart)
+query_cache = {}
+
+def get_cache_key_from_query(query: str, params: dict = None) -> str:
+    """
+    Generate a hash key based on the query and optional parameters.
+    """
+    key_str = query.strip()
+    if params:
+        try:
+            key_str += json.dumps(params, sort_keys=True)
+        except Exception:
+            pass  # If params can't be serialized, skip it
+    return hashlib.md5(key_str.encode()).hexdigest()
 
 def insert_filters(query, filters_clause):
     """

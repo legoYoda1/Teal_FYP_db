@@ -42,3 +42,17 @@ textarea::placeholder {
     font-family: monospace;
     border-radius: 6px;
 }
+
+.close-chart-modal-btn {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.help-tooltip {
+  cursor: help;
+  font-size: 14px;
+  color: #007BFF;
+  margin-left: 6px;
+}

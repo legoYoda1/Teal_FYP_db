@@ -2,13 +2,14 @@ import os
 import sqlite3
 from datetime import datetime, timedelta
 from flask import render_template, request, url_for
-from flask import Blueprint, jsonify, current_app, session
-from app.dashboard_functions import insert_filters, get_chart_suggestions, convert_ndarrays, get_query_suggestions
+from flask import Blueprint, jsonify, current_app, session, g
+from app.dashboard_functions import insert_filters, get_query_suggestions, get_cache_key_from_query
 import json
-import plotly.express as px
-import plotly.graph_objects as go
 import pandas as pd
 from urllib.parse import unquote
+# Use this dict for naive in-memory caching (clears on restart)
+query_cache = {}
+
 
 bp = Blueprint('dashboard_routes', __name__)
 
@@ -51,29 +52,6 @@ def overview_stats():
 
     conn.close()
     return jsonify(stats)
-    
-@bp.route("/generate_charts", methods=["POST"])
-def generate_charts():
-    try:
-        query = request.json.get("sql_query", "SELECT * FROM report_fact")
-        conn = sqlite3.connect(current_app.config["DB_PATH"])
-        df = pd.read_sql_query(query, conn)
-        conn.close()
-
-        suggestion = get_chart_suggestions(df, query)
-
-        # Parse JSON from model
-        parsed = json.loads(suggestion)
-
-        # Dynamically evaluate the code safely
-        local_vars = {"df": df, "px": px, "go": go}
-        exec(parsed["code"], {}, local_vars)
-        fig = local_vars.get("fig")
-        fig_dict = convert_ndarrays(fig.to_dict())
-
-        return jsonify({"success": True, "title": parsed["title"], "chart": fig_dict})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
 
 # ==== CUSTOM DASHBOARD ROUTES ====
 
@@ -115,20 +93,19 @@ def custom_query_data():
                 "error": "No valid SELECT query in session"
             })
 
+        cache_key = get_cache_key_from_query(base_query)
+        page_key = f"{cache_key}:{start}:{length}"
+        if page_key in query_cache:
+            return jsonify(query_cache[page_key])
+
         conn = sqlite3.connect(current_app.config["DB_PATH"])
         conn.row_factory = sqlite3.Row
 
-        # Count total records
         count_query = f"SELECT COUNT(*) FROM ({base_query}) as sub"
         total_records = conn.execute(count_query).fetchone()[0]
 
-        # Get current page
-        paginated_query = f"""
-            SELECT * FROM ({base_query}) as sub
-            LIMIT ? OFFSET ?
-        """
+        paginated_query = f"SELECT * FROM ({base_query}) as sub LIMIT ? OFFSET ?"
         df = pd.read_sql_query(paginated_query, conn, params=(length, start))
-
         conn.close()
 
         if "report_path" in df.columns:
@@ -136,15 +113,17 @@ def custom_query_data():
                 lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
             )
             df.drop("report_path", axis=1, inplace=True)
-        column_names = df.columns.tolist()
 
-        return jsonify({
+        response = {
             "draw": draw,
             "recordsTotal": total_records,
             "recordsFiltered": total_records,
             "data": df.to_dict(orient="records"),
-            "columns": column_names
-        })
+            "columns": df.columns.tolist()
+        }
+
+        query_cache[page_key] = response
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({
@@ -155,6 +134,60 @@ def custom_query_data():
             "columns": [],
             "error": str(e)
         })
+    
+@bp.route("/api/generate_chartjs_data", methods=["POST"])
+def generate_chartjs_data():
+    try:
+        chart_type = request.json.get("chart_type")
+        x_axis = request.json.get("x_axis")
+        agg_func = request.json.get("agg_func", "count")
+        agg_col = request.json.get("agg_col")  # Only used for sum
+
+        query = session.get("user_query", "SELECT * FROM report_fact")
+
+        conn = sqlite3.connect(current_app.config["DB_PATH"])
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+
+        if x_axis not in df.columns:
+            return jsonify({"success": False, "error": f"Invalid x-axis column: {x_axis}."})
+
+        if agg_func == "count":
+            grouped = df.groupby(x_axis).size().reset_index(name="value")
+        elif agg_func == "sum":
+            if not agg_col or agg_col not in df.columns:
+                return jsonify({"success": False, "error": f"Invalid sum column: {agg_col}."})
+            grouped = df.groupby(x_axis)[agg_col].sum().reset_index(name="value")
+        else:
+            return jsonify({"success": False, "error": f"Unsupported aggregation: {agg_func}"})
+
+        labels = grouped[x_axis].astype(str).tolist()
+        values = grouped["value"].tolist()
+
+        chart_config = {
+            "type": chart_type,
+            "data": {
+                "labels": labels,
+                "datasets": [{
+                    "label": f"{agg_func.upper()} by {x_axis}",
+                    "data": values,
+                    "backgroundColor": "rgba(54, 162, 235, 0.6)",
+                    "borderColor": "rgba(54, 162, 235, 1)",
+                    "borderWidth": 1
+                }]
+            },
+            "options": {
+                "responsive": True,
+                "scales": {
+                    "y": { "beginAtZero": True }
+                }
+            }
+        }
+
+        return jsonify(chart_config)
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
     
 @bp.route("/generate_query", methods=["POST"])
 def generate_query():
@@ -231,6 +264,12 @@ def assist_query_data():
         filters_sql = " AND ".join(filter_clauses)
         query = insert_filters(editable_query, filters_sql) if filters_sql else editable_query
 
+        # Cache check
+        cache_key = get_cache_key_from_query(query, params)
+        page_key = f"{cache_key}:{start}:{length}"
+        if page_key in query_cache:
+            return jsonify(query_cache[page_key])
+
         conn = sqlite3.connect(current_app.config["DB_PATH"])
         conn.row_factory = sqlite3.Row
 
@@ -247,13 +286,16 @@ def assist_query_data():
             )
             df.drop("report_path", axis=1, inplace=True)
 
-        return jsonify({
+        response = {
             "draw": draw,
             "recordsTotal": total_records,
             "recordsFiltered": total_records,
             "data": df.to_dict(orient="records"),
             "columns": df.columns.tolist()
-        })
+        }
+
+        query_cache[page_key] = response
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({
@@ -264,6 +306,7 @@ def assist_query_data():
             "columns": [],
             "error": str(e)
         })
+
 
 
 @bp.route("/api/saved_queries", methods=["GET"])

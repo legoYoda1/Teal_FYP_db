@@ -41,57 +41,88 @@
     <thead><tr id="custom-table-headers"></tr></thead>
 </table>
 
+<!-- Chart.js Modal -->
+<button id="open-chart-modal-btn" class="nav-button">*Beta* Generate Chart</button>
 
-    <div><h2>Text to SQL Generator</h2></div>
+<div id="chart-modal" class="modal">
+  <div class="modal-content" style="width: 600px;">
+    <span class="close-chart-modal-btn">&times;</span>
+    <h2>Create Chart</h2>
+    <form id="chart-form">
+      <label>Chart Type
+      <span class="help-tooltip" title="Choose the chart style you want: bar, line, pie, etc.">ⓘ</span>
+      </label>
+      <select name="chart_type" id="chart_type">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="pie">Pie</option>
+        <option value="doughnut">Doughnut</option>
+      </select><br><br>
+
+      <label>X Axis Column
+        <span class="help-tooltip" title="Pick a column to group the data by — e.g., zone, date, or defect type.">ⓘ</span>
+      </label>
+      <select name="x_axis" id="x_axis"></select><br><br>
+
+      <label>Y Axis Aggregate
+        <span class="help-tooltip" title="Choose how to summarize values in each group: count rows, or sum a numeric column.">ⓘ</span>
+      </label>
+<select name="y_axis" id="y_axis">
+  <option value="count">Count</option>
+  <option value="sum">Sum</option>
+</select><br><br>
+
+<div id="agg-col-wrapper" style="display: none;">
+  <label>Y Column (only for Sum)
+    <span class="help-tooltip" title="If you chose 'sum', select the numeric column to sum — like cost or severity.">ⓘ</span>
+  </label>
+  <select name="agg_col" id="agg_col"></select><br><br>
+</div>
+
+      <button type="submit">Generate</button>
+    </form>
+    <canvas id="chartjs-canvas" style="margin-top: 20px;"></canvas>
+  </div>
+</div>
+
+    <h2>Text to SQL Generator</h2>
     <input type="text" id="prompt-input" placeholder="Enter your prompt here" value="{{ prompt }}" required>
-    <button id="generate-query-btn" type="submit">Generate SQL Query</button>
+    <button id="generate-query-btn" type="submit" onclick="handleGenerateQuery()">Generate SQL Query</button>
+    <div id="loading-spinner" class="spinner" style="display: none; margin-left: 10px;"></div>
+    <div id="query-error" style="color: red;"></div>
 
     <script>
-document.getElementById("generate-query-btn").addEventListener("click", function () {
-    const prompt_input = document.getElementById("prompt-input").value;
-    fetch("/generate_query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ "prompt": prompt_input })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById("sql_query").value = data.query;
-            document.getElementById("final-sql-query").value = data.query;
-        } else {
-            document.getElementById("query-response").innerText = "Error: " + data.error;
-        }
-    })
-    .catch(error => {
-        document.getElementById("query-response").innerText = "Request failed: " + error;
-    });
-});
-</script>
-    <!-- Show Charts Button Script -->
-     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-document.getElementById("show-charts-btn").addEventListener("click", function () {
-    const query = document.getElementById("final-sql-query").value;
+    async function handleGenerateQuery() {
+  const spinner = document.getElementById("loading-spinner");
+  const promptInput = document.getElementById("prompt-input");
+  const queryResponse = document.getElementById("sql_query");
+  const errorDiv = document.getElementById("query-error");
+  errorDiv.innerText = ""; // Clear previous errors
 
-    fetch("/generate_charts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sql_query: query })
-    })
-    .then(response => response.json())
-    .then(data => {
-    if (data.success) {
-        document.getElementById("chart-title").innerText = data.title;
-        Plotly.newPlot("chart-div", data.chart.data, data.chart.layout);
-    } else {
-        document.getElementById("chart-div").innerHTML = "<span style='color:red'>" + data.error + "</span>";
-    }
-})
-    .catch(error => {
-        document.getElementById("chart-div").innerHTML = "<span style='color:red'>Request failed: " + error + "</span>";
+  spinner.style.display = "block"; // Show spinner
+
+  try {
+    const response = await fetch("/generate_query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt: promptInput.value })
     });
-});
+
+    const result = await response.json();
+
+    if (result.success) {
+        queryResponse.value = result.query;
+    } else {
+      errorDiv.innerText = "Error: " + result.error;
+    }
+  } catch (err) {
+    errorDiv.innerText = "Request failed: " + error;
+  } finally {
+    spinner.style.display = "none"; // Hide spinner
+  }
+}
 </script>
 
     <!-- run query / reset button script -->
@@ -179,6 +210,8 @@ $(document).ready(function () {
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -236,6 +269,82 @@ window.addEventListener("click", function (event) {
     const modal = document.getElementById("legend-modal");
     if (event.target == modal) {
         modal.style.display = "none";
+    }
+});
+</script>
+
+<!-- Chart Modal Script -->
+<script>
+const chartModal = document.getElementById("chart-modal");
+const openModalBtn = document.getElementById("open-chart-modal-btn");
+const closeModalBtn = document.querySelector(".close-chart-modal-btn");
+const chartForm = document.getElementById("chart-form");
+let chartInstance = null;
+
+openModalBtn.onclick = function () {
+    chartModal.style.display = "block";
+    // Fetch column names for form options
+   fetch("/api/custom_query_data", {
+    method: "POST",
+    body: new URLSearchParams({ draw: 1, start: 0, length: 1 })
+})
+.then(res => res.json())
+.then(data => {
+    const xAxisSelect = document.getElementById("x_axis");
+    const aggColSelect = document.getElementById("agg_col");
+    xAxisSelect.innerHTML = "";
+    aggColSelect.innerHTML = "";
+
+    data.columns.forEach(col => {
+        xAxisSelect.innerHTML += `<option value="${col}">${col}</option>`;
+        aggColSelect.innerHTML += `<option value="${col}">${col}</option>`;
+    });
+});
+};
+
+closeModalBtn.onclick = function () {
+    chartModal.style.display = "none";
+};
+
+window.onclick = function (event) {
+    if (event.target == chartModal) {
+        chartModal.style.display = "none";
+    }
+};
+
+chartForm.onsubmit = function (e) {
+    e.preventDefault();
+    const chartType = document.getElementById("chart_type").value;
+    const xCol = document.getElementById("x_axis").value;
+    const aggFunc = document.getElementById("y_axis").value;
+    const aggCol = document.getElementById("agg_col").value;
+
+fetch("/api/generate_chartjs_data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chart_type: chartType, x_axis: xCol, agg_func: aggFunc, agg_col: aggCol })
+})
+    .then(res => res.json())
+    .then(data => {
+        const ctx = document.getElementById("chartjs-canvas").getContext("2d");
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        chartInstance = new Chart(ctx, data);
+    })
+    .catch(err => {
+        alert("Failed to generate chart: " + err);
+    });
+};
+
+document.getElementById("y_axis").addEventListener("change", function () {
+    const aggFunc = this.value;
+    const aggColWrapper = document.getElementById("agg-col-wrapper");
+
+    if (aggFunc === "sum") {
+        aggColWrapper.style.display = "block";
+    } else {
+        aggColWrapper.style.display = "none";
     }
 });
 </script>

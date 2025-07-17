@@ -1,15 +1,17 @@
--- Insert rows into the date_dim table for the range 2000-2050
-WITH RECURSIVE date_series AS (
-    SELECT '2000-01-01' AS date
-    UNION ALL
-    SELECT date(date, '+1 day') 
-    FROM date_series
-    WHERE date < '2050-12-31'
-)
+-- Set a higher limit just for this session
+SET SESSION cte_max_recursion_depth = 20000;
+
 INSERT INTO date_dim (date_id, day, month, year)
+WITH RECURSIVE date_series (date) AS (
+  SELECT DATE('2000-01-01')
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY)
+  FROM date_series
+  WHERE date < '2050-12-31'
+)
 SELECT
-    CAST(strftime('%d%m%Y', date) AS INTEGER) AS date_id,  -- Format as 'ddmmyyyy' and cast to integer
-    CAST(strftime('%d', date) AS INTEGER) AS day,
-    CAST(strftime('%m', date) AS INTEGER) AS month,
-    CAST(strftime('%Y', date) AS INTEGER) AS year
+    CAST(DATE_FORMAT(date, '%d%m%Y') AS UNSIGNED) AS date_id,
+    DAY(date) AS day,
+    MONTH(date) AS month,
+    YEAR(date) AS year
 FROM date_series;

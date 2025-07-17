@@ -7,7 +7,8 @@ wheels/
 *.egg-info
 
 # Ignore the SQLite database
-test.db
+warehouse.db
+query.db
 
 # Ignore batch csv
 others\misc\report_batch_2.csv

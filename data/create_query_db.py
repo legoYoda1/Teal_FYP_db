@@ -1,15 +1,30 @@
 import os
-import sqlite3
+from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-conn = sqlite3.connect(os.path.join(os.getcwd(), 'data', 'saved_queries.db'))
+# Load .env variables
+load_dotenv()
 
-cursor = conn.cursor()
+# Load the database URI from environment (fallback to sqlite if not set)
+DB_URI = os.getenv("MYSQL_QUERY_DB_URI", "sqlite:///data/query.db")
 
-# Create the saved_queries table if it doesn't exist
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS saved_queries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    label TEXT NOT NULL,
-    sql_query TEXT NOT NULL,
-    chart_code TEXT
-);''')
+# Set up SQLAlchemy
+engine = create_engine(DB_URI)
+Session = sessionmaker(bind=engine)
+Base = declarative_base()
+
+# Define the table model
+class SavedQuery(Base):
+    __tablename__ = 'saved_queries'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    label = Column(String(255), nullable=False)
+    sql_query = Column(Text, nullable=False)
+    chart_code = Column(Text)
+
+# Create the table
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)
+    print(f"Database initialized at {DB_URI}")

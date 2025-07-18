@@ -37,7 +37,7 @@
         <div class="error">{{ error }}</div>
     {% endif %}
 
-    <table id="custom-data-table" class="data-table display" style="width:100%">
+    <table id="custom-data-table" class="data-table display" style="width:100%; margin-top: 10px; margin-bottom: 10px;">
     <thead><tr id="custom-table-headers"></tr></thead>
 </table>
 
@@ -50,14 +50,33 @@
     <h2>Create Chart</h2>
     <form id="chart-form">
       <label>Chart Type
-      <span class="help-tooltip" title="Choose the chart style you want: bar, line, pie, etc.">ⓘ</span>
-      </label>
-      <select name="chart_type" id="chart_type">
-        <option value="bar">Bar</option>
-        <option value="line">Line</option>
-        <option value="pie">Pie</option>
-        <option value="doughnut">Doughnut</option>
-      </select><br><br>
+  <span class="help-tooltip" title="Choose a chart style, or 'mixed' to combine two types.">ⓘ</span>
+</label>
+<select name="chart_type" id="chart_type">
+  <option value="bar">Bar</option>
+  <option value="line">Line</option>
+  <option value="pie">Pie</option>
+  <option value="doughnut">Doughnut</option>
+  <option value="polarArea">Polar Area</option>
+  <option value="radar">Radar</option>
+  <option value="bubble">Bubble</option>
+  <option value="scatter">Scatter</option>
+  <option value="mixed">Mixed</option>
+</select><br><br>
+
+<div id="mixed-type-wrapper" style="display: none;">
+  <label>Mixed Chart Types
+    <span class="help-tooltip" title="Pick primary and secondary types — e.g., Bar + Line.">ⓘ</span>
+  </label>
+  <select id="mixed_chart_type_1">
+    <option value="bar">Bar</option>
+    <option value="line">Line</option>
+  </select>
+  <select id="mixed_chart_type_2">
+    <option value="line">Line</option>
+    <option value="bar">Bar</option>
+  </select><br><br>
+</div>
 
       <label>X Axis Column
         <span class="help-tooltip" title="Pick a column to group the data by — e.g., zone, date, or defect type.">ⓘ</span>
@@ -102,7 +121,7 @@
   spinner.style.display = "block"; // Show spinner
 
   try {
-    const response = await fetch("/generate_query", {
+    const response = await fetch("/api/generate_query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -312,28 +331,41 @@ window.onclick = function (event) {
     }
 };
 
-chartForm.onsubmit = function (e) {
-    e.preventDefault();
-    const chartType = document.getElementById("chart_type").value;
-    const xCol = document.getElementById("x_axis").value;
-    const aggFunc = document.getElementById("y_axis").value;
-    const aggCol = document.getElementById("agg_col").value;
+// Show mixed type options
+document.getElementById("chart_type").addEventListener("change", function () {
+  const isMixed = this.value === "mixed";
+  document.getElementById("mixed-type-wrapper").style.display = isMixed ? "block" : "none";
+});
 
-fetch("/api/generate_chartjs_data", {
+chartForm.onsubmit = function (e) {
+  e.preventDefault();
+  const chartType = document.getElementById("chart_type").value;
+  const xCol = document.getElementById("x_axis").value;
+  const aggFunc = document.getElementById("y_axis").value;
+  const aggCol = document.getElementById("agg_col").value;
+  const mixed1 = document.getElementById("mixed_chart_type_1")?.value;
+  const mixed2 = document.getElementById("mixed_chart_type_2")?.value;
+
+  fetch("/api/generate_chartjs_data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chart_type: chartType, x_axis: xCol, agg_func: aggFunc, agg_col: aggCol })
-})
+    body: JSON.stringify({
+      chart_type: chartType,
+      x_axis: xCol,
+      agg_func: aggFunc,
+      agg_col: aggCol,
+      mixed_type_1: mixed1,
+      mixed_type_2: mixed2
+    })
+  })
     .then(res => res.json())
     .then(data => {
-        const ctx = document.getElementById("chartjs-canvas").getContext("2d");
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-        chartInstance = new Chart(ctx, data);
+      const ctx = document.getElementById("chartjs-canvas").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, data);
     })
     .catch(err => {
-        alert("Failed to generate chart: " + err);
+      alert("Failed to generate chart: " + err);
     });
 };
 

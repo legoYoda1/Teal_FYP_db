@@ -63,12 +63,12 @@ def overview_stats():
 @bp.route("/custom", methods=["GET", "POST"])
 def custom():
     error = None
-    query = session.get("user_query", "SELECT * FROM report_fact")
+    query = session.get("user_query", "SELECT * FROM report_fact").strip().rstrip(';')
 
     if request.method == "POST":
         action = request.form.get("action")
         if action == "submit":
-            user_query = request.form["sql_query"].strip()
+            user_query = request.form["sql_query"].strip().rstrip(';')
             if user_query.lower().startswith("select"):
                 session["user_query"] = user_query
                 query = user_query
@@ -86,7 +86,7 @@ def custom_query_data():
         draw = int(request.form.get("draw", 1))
         start = int(request.form.get("start", 0))
         length = int(request.form.get("length", 10))
-        base_query = session.get("user_query")
+        base_query = session.get("user_query", "SELECT * FROM report_fact").strip().rstrip(';')
 
         if not base_query or not base_query.strip().lower().startswith("select"):
             return jsonify({
@@ -215,7 +215,7 @@ def generate_chartjs_data():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-@bp.route("/generate_query", methods=["POST"])
+@bp.route("/api/generate_query", methods=["POST"])
 def generate_query():
     try:
         prompt = request.json.get("prompt")

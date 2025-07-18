@@ -22,7 +22,6 @@ class SavedQuery(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     label = Column(String(255), nullable=False)
     sql_query = Column(Text, nullable=False)
-    chart_code = Column(Text)
 
 # Create the table
 if __name__ == "__main__":

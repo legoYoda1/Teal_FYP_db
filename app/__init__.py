@@ -3,6 +3,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
+from cachetools import TTLCache
 load_dotenv()
 
 socketio = SocketIO(cors_allowed_origins='*')
@@ -21,6 +22,10 @@ def create_app():
     #app.config['DB_PATH'] = os.path.join('data', 'warehouse.db') # sqlite database paths
     #app.config['QUERY_DB_PATH'] = os.path.join('data', 'query.db') # sqlite database paths
     app.config["SECRET_KEY"] = os.getenv("FLASK_SESSIONS_SECRET_KEY")
+
+    # Set TTL to 30 days (in seconds) = 30 * 24 * 60 * 60 = 2,592,000 seconds
+    app.saved_query_button_cache = TTLCache(maxsize=1000, ttl=2592000)
+    app.overview_stats_cache = TTLCache(maxsize=1000, ttl=2592000)
 
     from app.routes.dashboard_routes import bp as dashboard_routes
     app.register_blueprint(dashboard_routes)

@@ -5,8 +5,12 @@ from urllib.parse import unquote
 from flask import render_template, request, Blueprint, jsonify, current_app, session
 from sqlalchemy import text
 from app.dashboard_functions import insert_filters, get_query_suggestions, get_cache_key_from_query
+from random import randint
+from cachetools import LRUCache
 
-query_cache = {}
+# Initialize a cache for query results (resets on flask app restart)
+query_cache = LRUCache(maxsize=1000)
+
 bp = Blueprint('dashboard_routes', __name__)
 
 # ==== LANDING PAGE ROUTES ====
@@ -17,11 +21,16 @@ def index():
 
 @bp.route("/api/overview_stats")
 def overview_stats():
+    cache = current_app.overview_stats_cache
+
+    # Use a static key since this endpoint has a single payload
+    if "stats" in cache:
+        return jsonify(cache["stats"])
+
     engine = current_app.db_engine
     stats = {}
 
     with engine.connect() as conn:
-        # Use .mappings() to get a dictionary-like result
         total_defects_row = conn.execute(text("SELECT COUNT(*) AS count FROM report_fact")).mappings().fetchone()
         stats["total_defects"] = total_defects_row["count"] if total_defects_row else 0
 
@@ -42,8 +51,10 @@ def overview_stats():
             ORDER BY count DESC
             LIMIT 1
         """)).mappings().fetchone()
-        # The result is already a dictionary, so no need to cast with dict()
         stats["hotspot"] = hotspot_row if hotspot_row else {}
+
+    # Cache the result for future requests
+    cache["stats"] = stats
 
     return jsonify(stats)
 
@@ -116,6 +127,9 @@ def custom_query_data():
             "data": [], "columns": [], "error": str(e)
         })
 
+def random_rgba():
+    return f'rgba({randint(0,255)}, {randint(0,255)}, {randint(0,255)}, 0.6)'
+
 @bp.route("/api/generate_chartjs_data", methods=["POST"])
 def generate_chartjs_data():
     try:
@@ -123,9 +137,10 @@ def generate_chartjs_data():
         x_axis = request.json.get("x_axis")
         agg_func = request.json.get("agg_func", "count")
         agg_col = request.json.get("agg_col")
+        mixed_1 = request.json.get("mixed_type_1")
+        mixed_2 = request.json.get("mixed_type_2")
 
         query = session.get("user_query", "SELECT * FROM report_fact")
-
         engine = current_app.db_engine
         with engine.connect() as conn:
             df = pd.read_sql_query(text(query), conn)
@@ -142,23 +157,60 @@ def generate_chartjs_data():
         else:
             return jsonify({"success": False, "error": f"Unsupported aggregation: {agg_func}"})
 
-        return jsonify({
-            "type": chart_type,
-            "data": {
-                "labels": grouped[x_axis].astype(str).tolist(),
-                "datasets": [{
-                    "label": f"{agg_func.upper()} by {x_axis}",
-                    "data": grouped["value"].tolist(),
-                    "backgroundColor": "rgba(54, 162, 235, 0.6)",
-                    "borderColor": "rgba(54, 162, 235, 1)",
-                    "borderWidth": 1
-                }]
-            },
-            "options": {
-                "responsive": True,
-                "scales": { "y": { "beginAtZero": True } }
+        labels = grouped[x_axis].astype(str).tolist()
+        values = grouped["value"].tolist()
+        colors = [random_rgba() for _ in values]
+
+        if chart_type == "mixed":
+            config = {
+                "type": "bar",  # base type
+                "data": {
+                    "labels": labels,
+                    "datasets": [
+                        {
+                            "type": mixed_1,
+                            "label": f"{mixed_1.upper()} - {agg_func}",
+                            "data": values,
+                            "backgroundColor": colors,
+                            "borderColor": colors,
+                            "borderWidth": 2
+                        },
+                        {
+                            "type": mixed_2,
+                            "label": f"{mixed_2.upper()} - {agg_func}",
+                            "data": values,
+                            "backgroundColor": "transparent",
+                            "borderColor": "rgba(255, 99, 132, 1)",
+                            "borderWidth": 2,
+                            "fill": False
+                        }
+                    ]
+                },
+                "options": {
+                    "responsive": True,
+                    "scales": { "y": { "beginAtZero": True } }
+                }
             }
-        })
+        else:
+            config = {
+                "type": chart_type,
+                "data": {
+                    "labels": labels,
+                    "datasets": [{
+                        "label": f"{agg_func.upper()} by {x_axis}",
+                        "data": values,
+                        "backgroundColor": colors,
+                        "borderColor": colors,
+                        "borderWidth": 1
+                    }]
+                },
+                "options": {
+                    "responsive": True,
+                    "scales": { "y": { "beginAtZero": True } } if chart_type in ["bar", "line"] else {}
+                }
+            }
+
+        return jsonify(config)
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
@@ -280,17 +332,28 @@ def save_query():
     data = request.json
     label = data.get("label")
     sql_query = data.get("sql_query")
-    chart_code = data.get("chart_code", "")
 
     engine = current_app.query_db_engine
     with engine.begin() as conn:
         conn.execute(
             text("""
-                INSERT INTO saved_queries (label, sql_query, chart_code)
-                VALUES (:label, :sql_query, :chart_code)
+                INSERT INTO saved_queries (label, sql_query)
+                VALUES (:label, :sql_query)
             """),
-            {"label": label, "sql_query": sql_query, "chart_code": chart_code}
+            {"label": label, "sql_query": sql_query}
         )
+
+        # Cache the result
+        try:
+            warehouse_engine = current_app.db_engine
+            with warehouse_engine.connect() as warehouse_conn:
+                result = warehouse_conn.execute(text(sql_query)).fetchall()
+                rows = [dict(row._mapping) for row in result]
+                current_app.saved_query_button_cache[label] = rows
+        except Exception as e:
+            print(f"Failed to cache saved query '{label}': {e}")
+
+
     return jsonify({"success": True})
 
 
@@ -299,18 +362,30 @@ def update_query(id):
     data = request.json
     label = data.get("label")
     sql_query = data.get("sql_query")
-    chart_code = data.get("chart_code", "")
 
     engine = current_app.query_db_engine
     with engine.begin() as conn:
         conn.execute(
             text("""
                 UPDATE saved_queries
-                SET label = :label, sql_query = :sql_query, chart_code = :chart_code
+                SET label = :label, sql_query = :sql_query
                 WHERE id = :id
             """),
-            {"label": label, "sql_query": sql_query, "chart_code": chart_code, "id": id}
+            {"label": label, "sql_query": sql_query, "id": id}
         )
+
+        # Invalidate + re-cache
+        current_app.saved_query_button_cache.pop(label, None)
+        try:
+            warehouse_engine = current_app.db_engine
+            with warehouse_engine.connect() as warehouse_conn:
+                result = warehouse_conn.execute(text(sql_query)).fetchall()
+                rows = [dict(row._mapping) for row in result]
+                current_app.saved_query_button_cache[label] = rows
+        except Exception as e:
+            print(f"Failed to re-cache saved query '{label}': {e}")
+
+
     return jsonify({"success": True})
 
 
@@ -318,5 +393,11 @@ def update_query(id):
 def delete_query(id):
     engine = current_app.query_db_engine
     with engine.begin() as conn:
+        # Get label before deletion
+        result = conn.execute(text("SELECT label FROM saved_queries WHERE id = :id"), {"id": id}).first()
+        if result:
+            label = result._mapping["label"]
+            current_app.saved_query_button_cache.pop(label, None)
+
         conn.execute(text("DELETE FROM saved_queries WHERE id = :id"), {"id": id})
     return jsonify({"success": True})

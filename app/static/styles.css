@@ -210,3 +210,55 @@ button:hover {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
+.quick-queries .query-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.query-button {
+    background-color: #1b64ef;
+    color: white;
+    font-size: 13px;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.query-button:hover {
+    background-color: #154bcc;
+}
+
+.edit-button {
+    background-color: #2a2a3d;
+    color: #ffffff;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+    background-color: #3c3c5a;
+}
+
+.delete-button {
+    background-color: #e02224; 
+    color: white;
+    padding: 8px 12px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #c0181d;
+}

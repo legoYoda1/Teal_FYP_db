@@ -4,9 +4,10 @@ from datetime import datetime, timedelta
 from urllib.parse import unquote
 from flask import render_template, request, Blueprint, jsonify, current_app, session
 from sqlalchemy import text
-from app.dashboard_functions import insert_filters, get_query_suggestions, get_cache_key_from_query
+from app.dashboard_functions import insert_filters, get_query_suggestions, get_cache_key_from_query, get_dropbox_token
 from random import randint
 from cachetools import LRUCache
+import dropbox
 
 # Initialize a cache for query results (resets on flask app restart)
 query_cache = LRUCache(maxsize=1000)
@@ -43,15 +44,15 @@ def overview_stats():
         """)).mappings().fetchone()
         stats["most_common_defect"] = most_common_row["cause_of_defect"] if most_common_row else "N/A"
 
-        hotspot_row = conn.execute(text("""
-            SELECT l.zone, COUNT(*) as count
-            FROM report_fact r
-            JOIN location_dim l ON r.location_id = l.location_id
-            GROUP BY l.zone
-            ORDER BY count DESC
-            LIMIT 1
-        """)).mappings().fetchone()
-        stats["hotspot"] = hotspot_row if hotspot_row else {}
+       # hotspot_row = conn.execute(text("""
+        #    SELECT l.zone, COUNT(*) as count
+         #   FROM report_fact r
+          #  JOIN location_dim l ON r.location_key = l.location_id
+           # GROUP BY l.zone
+            #ORDER BY count DESC
+            #LIMIT 1
+        #""")).mappings().fetchone()
+        #stats["hotspot"] = hotspot_row if hotspot_row else {}
 
     # Cache the result for future requests
     cache["stats"] = stats
@@ -69,6 +70,7 @@ def custom():
         action = request.form.get("action")
         if action == "submit":
             user_query = request.form["sql_query"].strip().rstrip(';')
+            user_query = unquote(user_query)
             if user_query.lower().startswith("select"):
                 session["user_query"] = user_query
                 query = user_query
@@ -79,6 +81,35 @@ def custom():
             query = session["user_query"]
 
     return render_template("custom.html", query=query, error=error)
+        
+@bp.route("/api/get_viewer_link", methods=["POST"])
+def get_viewer_link():
+    data = request.get_json()
+    file_path = data.get("file_path")
+    if not file_path.startswith('/'):
+        file_path = '/' + file_path
+
+    print(f"Requesting link for: {file_path}...")
+
+    try:
+        dropbox_access_token = get_dropbox_token()
+        dbx = dropbox.Dropbox(dropbox_access_token)
+        shared_link_metadata = dbx.sharing_create_shared_link_with_settings(path=file_path)
+        return jsonify({"url": shared_link_metadata.url})
+
+    except dropbox.exceptions.ApiError as e:
+        if e.error.is_shared_link_already_exists():
+            print("  -> Link already exists. Fetching existing link...")
+            links = dbx.sharing_list_shared_links(path=file_path).links
+            if links:
+                return jsonify({"url": links[0].url})
+            else:
+                error_msg = f"Could not fetch existing link for {file_path}"
+                return jsonify({"error": error_msg}), 404
+        else:
+            error_msg = f"Unexpected Dropbox API error: {e}"
+            print("  ->", error_msg)
+            return jsonify({"error": error_msg}), 500
 
 @bp.route("/api/custom_query_data", methods=["POST"])
 def custom_query_data():
@@ -107,11 +138,11 @@ def custom_query_data():
             paginated_query = f"SELECT * FROM ({base_query}) as sub LIMIT :limit OFFSET :offset"
             df = pd.read_sql_query(text(paginated_query), conn, params={"limit": length, "offset": start})
 
-        if "report_path" in df.columns:
-            df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="static/reports/{x}" target="_blank" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; text-decoration:none; font-weight:bold;">View</a>' if pd.notnull(x) else "N/A"
+        if "url_path" in df.columns:
+            df["report"] = df["url_path"].apply(
+                lambda x: f'<button onclick="requestViewerLink(\'{x}\')" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; font-weight:bold;">View</button>' if pd.notnull(x) else "N/A"
             )
-            df.drop("report_path", axis=1, inplace=True)
+            df.drop("url_path", axis=1, inplace=True)
 
         response = {
             "draw": draw, "recordsTotal": total_records, "recordsFiltered": total_records,
@@ -223,100 +254,7 @@ def generate_query():
         return jsonify({"success": True, "query": query})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-
-# ==== ASSIST DASHBOARD ROUTES ====
-
-@bp.route("/assist", methods=["GET", "POST"])
-def assist():
-    error = None
-    if request.method == "POST":
-        raw_query = request.form.get("editable_query", "SELECT * FROM report_fact")
-        session["assist_query"] = unquote(raw_query.strip() or "SELECT * FROM report_fact")
-        session["assist_time_interval"] = request.form.get("time_interval")
-        session["assist_start_date"] = request.form.get("start_date")
-        session["assist_end_date"] = request.form.get("end_date")
-        session["assist_repeated_defect"] = request.form.get("repeated_defect")
-        session["assist_zone"] = request.form.get("zone")
-    return render_template("assist.html", error=error)
-
-@bp.route("/api/assist_query_data", methods=["POST"])
-def assist_query_data():
-    try:
-        draw = int(request.form.get("draw", 1))
-        start = int(request.form.get("start", 0))
-        length = int(request.form.get("length", 10))
-
-        base_query = session.get("assist_query", "SELECT * FROM report_fact").strip().rstrip(";")
-        params = {}
-        filters = []
-
-        today = datetime.today()
-        time_interval = session.get("assist_time_interval")
-        start_date = session.get("assist_start_date")
-        end_date = session.get("assist_end_date")
-
-        if time_interval:
-            if time_interval == "last_7_days":
-                params["search_date"] = (today - timedelta(days=7)).strftime('%Y%m%d')
-                filters.append("date_id >= :search_date")
-            elif time_interval == "last_30_days":
-                params["search_date"] = (today - timedelta(days=30)).strftime('%Y%m%d')
-                filters.append("date_id >= :search_date")
-            elif time_interval == "this_month":
-                params["search_date"] = datetime(today.year, today.month, 1).strftime('%Y%m%d')
-                filters.append("date_id >= :search_date")
-            elif time_interval == "custom" and start_date and end_date:
-                params["start_date"] = datetime.strptime(start_date, '%Y-%m-%d').strftime('%Y%m%d')
-                params["end_date"] = datetime.strptime(end_date, '%Y-%m-%d').strftime('%Y%m%d')
-                filters.append("date_id BETWEEN :start_date AND :end_date")
-
-        if (rep := session.get("assist_repeated_defect")) in ["0", "1"]:
-            params["repeated_defect"] = int(rep)
-            filters.append("repeated_defect = :repeated_defect")
-
-        if (zone := session.get("assist_zone")):
-            params["zone"] = zone
-            filters.append("location_id IN (SELECT location_id FROM location_dim WHERE zone LIKE '%' || :zone || '%')")
-
-        query = insert_filters(base_query, " AND ".join(filters)) if filters else base_query
-
-        cache_key = get_cache_key_from_query(query, params)
-        page_key = f"{cache_key}:{start}:{length}"
-        if page_key in query_cache:
-            return jsonify(query_cache[page_key])
-
-        engine = current_app.db_engine
-        with engine.connect() as conn:
-            count = conn.execute(text(f"SELECT COUNT(*) FROM ({query}) AS sub"), params).scalar()
-            df = pd.read_sql_query(
-                text(f"SELECT * FROM ({query}) AS sub LIMIT :limit OFFSET :offset"),
-                conn,
-                params={**params, "limit": length, "offset": start}
-            )
-
-        if "report_path" in df.columns:
-            df["report"] = df["report_path"].apply(
-                lambda x: f'<a href="static/reports/{x}" target="_blank" style="...">View</a>' if pd.notnull(x) else "N/A"
-            )
-            df.drop("report_path", axis=1, inplace=True)
-
-        result = {
-            "draw": draw,
-            "recordsTotal": count,
-            "recordsFiltered": count,
-            "data": df.to_dict(orient="records"),
-            "columns": df.columns.tolist()
-        }
-
-        query_cache[page_key] = result
-        return jsonify(result)
-
-    except Exception as e:
-        return jsonify({
-            "draw": 1, "recordsTotal": 0, "recordsFiltered": 0,
-            "data": [], "columns": [], "error": str(e)
-        })
-
+    
 
 @bp.route("/api/saved_queries", methods=["GET"])
 def get_saved_queries():
@@ -401,3 +339,118 @@ def delete_query(id):
 
         conn.execute(text("DELETE FROM saved_queries WHERE id = :id"), {"id": id})
     return jsonify({"success": True})
+
+
+
+# ==== ASSIST DASHBOARD ROUTES ====
+
+@bp.route("/assist", methods=["GET", "POST"])
+def assist():
+    error = None
+    if request.method == "POST":
+        session["assist_query"] = "SELECT * FROM report_fact"
+        session["assist_time_interval"] = request.form.get("time_interval")
+        session["assist_start_date"] = request.form.get("start_date")
+        session["assist_end_date"] = request.form.get("end_date")
+        session["assist_repeated_defect"] = request.form.get("repeated_defect")
+        session["assist_zone"] = request.form.get("zone")
+    return render_template("assist.html", error=error)
+
+@bp.route("/api/assist_query_data", methods=["POST"])
+def assist_query_data():
+    filters = {
+        "time_interval": request.form.get("time_interval"),
+        "start_date": request.form.get("start_date"),
+        "end_date": request.form.get("end_date"),
+        "repeated_defect": request.form.get("repeated_defect"),
+        "zone": request.form.get("zone"),
+    }
+
+    where_clauses = []
+    params = {}
+
+    # Time filter
+    if filters["time_interval"] == "last_7_days":
+        db_format_date = (datetime.today() - timedelta(days=7)).strftime("%Y%m%d")
+        where_clauses.append("date_key >= :start_date")
+        params["start_date"] = int(db_format_date)  # Convert to integer
+    elif filters["time_interval"] == "last_30_days":
+        db_format_date = (datetime.today() - timedelta(days=30)).strftime("%Y%m%d")
+        where_clauses.append("date_key >= :start_date")
+        params["start_date"] = int(db_format_date)  # Convert to integer
+    elif filters["time_interval"] == "this_month":
+        today = datetime.today()
+        db_format_date = datetime(today.year, today.month, 1).strftime("%Y-%m-%d")
+        where_clauses.append("date_key >= :start_date")
+        params["start_date"] = int(db_format_date)  # Convert to integer
+    elif filters["time_interval"] == "custom" and filters["start_date"] and filters["end_date"]:
+        start_int = int(filters["start_date"].replace("-", ""))
+        end_int = int(filters["end_date"].replace("-", ""))
+        where_clauses.append("date_key BETWEEN :start_date AND :end_date")
+        params["start_date"] = start_int
+        params["end_date"] = end_int
+
+    if filters["repeated_defect"] in ("0", "1"):
+        where_clauses.append("is_repeated = :repeated_defect")
+        params["repeated_defect"] = filters["repeated_defect"]
+
+    if filters["zone"]:
+        where_clauses.append("zone = :zone")
+        params["zone"] = filters["zone"]
+
+    where_clause = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+
+    pie_sql = f"""
+        SELECT i.inspector_name, r.inspector_key, COUNT(r.report_fact_id) AS count
+        FROM report_fact as r JOIN inspector_dim as i
+        ON r.inspector_key = i.inspector_id
+        {where_clause}
+        GROUP BY r.inspector_key, i.inspector_name
+    """
+
+    bar_sql = f"""
+        SELECT cause_of_defect, COUNT(report_fact_id) AS count
+        FROM report_fact
+        {where_clause}
+        GROUP BY cause_of_defect
+    """
+
+    timeseries_sql = f"""
+        SELECT date_key, cause_of_defect, COUNT(report_fact_id) AS count
+        FROM report_fact
+        {where_clause}
+        GROUP BY date_key, cause_of_defect
+        ORDER BY date_key
+    """
+
+    totaldefects_sql = f"""
+        SELECT COUNT(report_fact_id) AS total_defects
+        FROM report_fact
+        {where_clause}
+    """
+
+    commondefects_sql = f"""
+        SELECT cause_of_defect, COUNT(report_fact_id) AS count
+        FROM report_fact
+        {where_clause}
+        GROUP BY cause_of_defect
+        ORDER BY count DESC
+        LIMIT 1
+    """
+
+    engine = current_app.db_engine
+    with engine.connect() as conn:
+        pie_data = [dict(row._mapping) for row in conn.execute(text(pie_sql), params).fetchall()]
+        bar_data = [dict(row._mapping) for row in conn.execute(text(bar_sql), params).fetchall()]
+        timeseries_data = [dict(row._mapping) for row in conn.execute(text(timeseries_sql), params).fetchall()]
+        total_defects = conn.execute(text(totaldefects_sql), params).scalar()
+        most_common_defect = conn.execute(text(commondefects_sql), params).scalar()
+
+
+    return jsonify({
+        "pie_data": pie_data,
+        "bar_data": bar_data,
+        "timeseries_data": timeseries_data,
+        "total_defects": total_defects,
+        "most_common_defect": most_common_defect if most_common_defect else "N/A"
+    })

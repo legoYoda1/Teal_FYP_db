@@ -2,6 +2,10 @@ import requests
 import numpy as np
 import json
 import hashlib
+from flask import current_app
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Naive in-memory cache (clears on server restart)
 query_cache = {}
@@ -40,8 +44,49 @@ def insert_filters(query, filters_clause):
         return query[:insert_pos] + ' AND ' + filters_clause + ' ' + query[insert_pos:]
     else:
         return query[:insert_pos] + ' WHERE ' + filters_clause + ' ' + query[insert_pos:]
+
+
+def refresh_dropbox_token():
+    """Secure Dropbox token refresh with proper error handling"""
+    url = "https://api.dropbox.com/oauth2/token"
     
-    # export the function
+    # Ensure no whitespace in credentials
+    data = {
+        "grant_type": "refresh_token",
+        "refresh_token": os.getenv('DROPBOX_REFRESH_TOKEN').strip(),
+        "client_id": os.getenv('DROPBOX_APP_KEY').strip(),
+        "client_secret": os.getenv('DROPBOX_APP_SECRET').strip()
+    }
+    
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+    }
+
+    try:
+        response = requests.post(url, data=data, headers=headers, timeout=30)
+        response.raise_for_status()  # Raises HTTPError for 4XX/5XX
+        return response.json()["access_token"]
+    
+    except requests.exceptions.HTTPError as e:
+        error_detail = e.response.json() if e.response.text else {}
+        current_app.logger.error(
+            f"Dropbox token refresh failed - {e.response.status_code}\n"
+            f"Error: {error_detail.get('error', 'Unknown')}\n"
+            f"Description: {error_detail.get('error_description', 'No details')}"
+        )
+        raise
+
+def get_dropbox_token():
+    if 'token' in current_app.dropbox_token_cache:
+        return current_app.dropbox_token_cache['token']
+    
+    # Refresh logic here...
+    new_token = refresh_dropbox_token()
+    current_app.dropbox_token_cache['token'] = new_token
+    return new_token
+
+
 
 
 def convert_ndarrays(obj):

@@ -14,14 +14,19 @@ def create_app():
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     ################################################
-    app.config['DB_PATH'] = os.getenv("MYSQL_DB_URI", "sqlite:///data/warehouse.db")
-    app.config['QUERY_DB_PATH'] = os.getenv("MYSQL_QUERY_DB_URI", "sqlite:///data/query.db")
+    app.config['DB_PATH'] = os.getenv("MYSQL_DB_URI")
+    app.config['QUERY_DB_PATH'] = os.getenv("MYSQL_QUERY_DB_URI")
 
     app.db_engine = create_engine(app.config['DB_PATH'])
     app.query_db_engine = create_engine(app.config['QUERY_DB_PATH'])
-    #app.config['DB_PATH'] = os.path.join('data', 'warehouse.db') # sqlite database paths
-    #app.config['QUERY_DB_PATH'] = os.path.join('data', 'query.db') # sqlite database paths
+
     app.config["SECRET_KEY"] = os.getenv("FLASK_SESSIONS_SECRET_KEY")
+
+    # Dropbox OAuth Configuration
+    app.dropbox_app_key = os.getenv("DROPBOX_APP_KEY")
+    app.dropbox_app_secret = os.getenv("DROPBOX_APP_SECRET")
+    app.dropbox_refresh_token = os.getenv("DROPBOX_REFRESH_TOKEN")
+    app.dropbox_token_cache = TTLCache(maxsize=1, ttl=14400)  # 4 hours
 
     # Set TTL to 30 days (in seconds) = 30 * 24 * 60 * 60 = 2,592,000 seconds
     app.saved_query_button_cache = TTLCache(maxsize=1000, ttl=2592000)

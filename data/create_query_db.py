@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load the database URI from environment (fallback to sqlite if not set)
-DB_URI = os.getenv("MYSQL_QUERY_DB_URI", "sqlite:///data/query.db")
+DB_URI = os.getenv("MYSQL_QUERY_DB_URI")
 
 # Set up SQLAlchemy
 engine = create_engine(DB_URI)

@@ -22,7 +22,7 @@ def execute_sql_script(script_name: str, connection):
     """
     Executes all SQL statements from a script file.
     """
-    file_path = os.path.join(os.getcwd(), 'others', 'sql', f'{script_name}.sql')
+    file_path = os.path.join(os.getcwd(), 'sql', f'{script_name}.sql')
     print(f"Executing {script_name}.sql...")
 
     with open(file_path, 'r') as sql_file:
@@ -50,9 +50,13 @@ def reinit_db():
         with db_engine.connect() as conn:
             with conn.begin():
                 print(f"Connected to '{DB_NAME}'. Running initialization scripts...")
-                execute_sql_script('table_deletion', conn)
-                execute_sql_script('table_creation', conn)
-                execute_sql_script('date_time_dim_insertion', conn)
+                execute_sql_script('tsm_warehouse_asset_dim', conn)
+                execute_sql_script('tsm_warehouse_date_dim', conn)
+                execute_sql_script('tsm_warehouse_inspector_dim', conn)
+                execute_sql_script('tsm_warehouse_location_dim', conn)
+                execute_sql_script('tsm_warehouse_supervisor_dim', conn)
+                execute_sql_script('tsm_warehouse_time_dim', conn)
+                execute_sql_script('tsm_warehouse_report_fact', conn)
             print("Initialization complete.")
     except Exception as e:
         print(f"Error during database initialization: {e}")

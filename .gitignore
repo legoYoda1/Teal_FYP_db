@@ -6,8 +6,14 @@ dist/
 wheels/
 *.egg-info
 
-# test database 
-/data/test.db
+# Ignore the SQLite database
+warehouse.db
+query.db
+
+# Ignore batch csv
+others\misc\report_batch_2.csv
+others\misc\report_batch.csv
+others\misc\dummy_report_batch.csv
 
 # Virtual environments
 .venv
@@ -15,3 +21,7 @@ wheels/
 
 # .vscode
 .vscode
+
+
+# Ignore the reports folder and its contents
+app/static/reports/

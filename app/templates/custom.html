@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
         <!-- DataTables CSS -->
@@ -12,22 +13,42 @@
     <div class="top-right">
         <a href="/" class="nav-button">home</a>
     </div>
-    <form method="POST">
-        <textarea name="sql_query" placeholder="Enter your SELECT SQL query here"></textarea><br>
-        <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
-        <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
-    </form>
+    <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
+    <form id="sql-query-form" method="POST" style="margin-bottom: 20px;">
+    <textarea name="sql_query" placeholder="Enter your SELECT SQL query here" id="sql_query"></textarea><br>
+    <button type="submit" name="action" value="submit" id="submit-btn">Run Query</button>
+    <button type="submit" name="action" value="reset" id="reset-btn">Reset</button>
+</form>
 
     <!-- Legend Icon -->
 <button type="button" id="legend-btn" title="View database schema">Legend</button>
 
-<!-- Modal Popup -->
+<!-- Legend Modal -->
 <div id="legend-modal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h2>Database Schema</h2>
-        <img src="{{ url_for('static', filename='erd_diagram.svg') }}" alt="ERD Diagram" style="width:100%; max-height: 500px; object-fit: contain;">
+        <img src="{{ url_for('static', filename='erd_diagram.svg') }}" alt="ERD Diagram" style="width:100%; max-height: 100%; object-fit: contain;">
     </div>
+</div>
+
+<!-- Saved Queries Section -->
+<label style="font-size: 1.2em; font-weight: bold;">Saved Queries:</label>
+<div id="saved-queries-container"></div>
+<button onclick="openQueryModal()" class="edit-button" style="margin: 10px;">➕ Add Query</button>
+
+<!-- Query Modal -->
+<div id="queryModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeQueryModal()">&times;</span>
+    <h3>Add New Query</h3>
+    <form id="save-query-form">
+        <input type="hidden" name="id" id="edit-query-id">
+      <input class="modal-input" type="text" name="label" placeholder="Query Label" required><br>
+      <textarea class="modal-input" name="sql_query" placeholder="SQL Query" rows="4" required></textarea><br>
+      <button type="submit" class="modal-button" onclick="closeQueryModal()">Save Query</button>
+    </form>
+  </div>
 </div>
 
 
@@ -35,51 +56,234 @@
         <div class="error">{{ error }}</div>
     {% endif %}
 
-    <div class="table-container">
-        {{ table|safe }}
-    </div>
+    <table id="custom-data-table" class="data-table display" style="width:100%; margin-top: 10px; margin-bottom: 10px;">
+    <thead><tr id="custom-table-headers"></tr></thead>
+</table>
 
-    <div class="chart-container">
-        <input type="hidden" id="final-sql-query" value="{{ final_query }}">
-        <button id="show-charts-btn">Show Charts</button>
-        <h2 id="chart-title"></h2>
-        <div class="chart" id="chart-div"></div>
-    </div>
 
-    <!-- Show Charts Button Script -->
-     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-document.getElementById("show-charts-btn").addEventListener("click", function () {
-    const query = document.getElementById("final-sql-query").value;
+<!-- Chart.js Modal -->
+<button id="open-chart-modal-btn" class="nav-button">Generate Chart</button>
 
-    fetch("/get_charts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sql_query: query })
+<div id="chart-modal" class="modal">
+  <div class="modal-content" style="width: 600px;">
+    <span class="close-chart-modal-btn">&times;</span>
+    <h2>Create Chart</h2>
+    <form id="chart-form">
+      <label>Chart Type
+  <span class="help-tooltip" title="Choose a chart style, or 'mixed' to combine two types.">ⓘ</span>
+</label>
+<select name="chart_type" id="chart_type">
+  <option value="bar">Bar</option>
+  <option value="line">Line</option>
+  <option value="pie">Pie</option>
+  <option value="doughnut">Doughnut</option>
+  <option value="polarArea">Polar Area</option>
+  <option value="radar">Radar</option>
+  <option value="bubble">Bubble</option>
+  <option value="scatter">Scatter</option>
+  <option value="mixed">Mixed</option>
+</select><br><br>
+
+<div id="mixed-type-wrapper" style="display: none;">
+  <label>Mixed Chart Types
+    <span class="help-tooltip" title="Pick primary and secondary types — e.g., Bar + Line.">ⓘ</span>
+  </label>
+  <select id="mixed_chart_type_1">
+    <option value="bar">Bar</option>
+    <option value="line">Line</option>
+  </select>
+  <select id="mixed_chart_type_2">
+    <option value="line">Line</option>
+    <option value="bar">Bar</option>
+  </select><br><br>
+</div>
+
+      <label>X Axis Column
+        <span class="help-tooltip" title="Pick a column to group the data by — e.g., zone, date, or defect type.">ⓘ</span>
+      </label>
+      <select name="x_axis" id="x_axis"></select><br><br>
+
+      <label>Y Axis Aggregate
+        <span class="help-tooltip" title="Choose how to summarize values in each group: count rows, or sum a numeric column.">ⓘ</span>
+      </label>
+<select name="y_axis" id="y_axis">
+  <option value="count">Count</option>
+  <option value="sum">Sum</option>
+</select><br><br>
+
+<div id="agg-col-wrapper" style="display: none;">
+  <label>Y Column (only for Sum)
+    <span class="help-tooltip" title="If you chose 'sum', select the numeric column to sum — like cost or severity.">ⓘ</span>
+  </label>
+  <select name="agg_col" id="agg_col"></select><br><br>
+</div>
+
+      <button type="submit">Generate</button>
+    </form>
+    <canvas id="chartjs-canvas" style="margin-top: 20px;"></canvas>
+  </div>
+</div>
+
+    <div id="loader" class="loader-overlay">
+  <div class="spinner"></div>
+</div>
+
+    <h2>Text to SQL Generator</h2>
+    <input type="text" id="prompt-input" placeholder="Enter your prompt here" value="{{ prompt }}" required>
+    <button id="generate-query-btn" type="submit" onclick="handleGenerateQuery()">Generate SQL Query</button>
+    <div id="query-error" style="color: red;"></div>
+
+<!-- Report viewing button script -->
+    <script>
+function requestViewerLink(filePath) {
+    showLoader();
+    fetch('/api/get_viewer_link', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ file_path: filePath })
     })
     .then(response => response.json())
     .then(data => {
-    if (data.success) {
-        document.getElementById("chart-title").innerText = data.title;
-        Plotly.newPlot("chart-div", data.chart.data, data.chart.layout);
-    } else {
-        document.getElementById("chart-div").innerHTML = "<span style='color:red'>" + data.error + "</span>";
-    }
-})
-    .catch(error => {
-        document.getElementById("chart-div").innerHTML = "<span style='color:red'>Request failed: " + error + "</span>";
+        const url = data.url;
+        window.open(url, '_blank');
+    })
+    .catch(err => {
+        console.error("Error getting viewer link:", err);
+        alert("Failed to fetch link.");
     });
-});
+    hideLoader();
+}
+</script>
+
+<!-- Loader CSS -->
+<script>
+function showLoader() {
+    document.getElementById("loader").style.display = "flex";
+}
+function hideLoader() {
+    document.getElementById("loader").style.display = "none";
+}</script>
+
+<!-- Text to SQL script -->
+    <script>
+    async function handleGenerateQuery() {
+  const promptInput = document.getElementById("prompt-input");
+  const queryResponse = document.getElementById("sql_query");
+  const errorDiv = document.getElementById("query-error");
+  errorDiv.innerText = ""; // Clear previous errors
+
+  try {
+    showLoader(); // Show loader while processing
+    const response = await fetch("/api/generate_query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt: promptInput.value })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        queryResponse.value = result.query;
+    } else {
+      errorDiv.innerText = "Error: " + result.error;
+    }
+  } catch (err) {
+    errorDiv.innerText = "Request failed: " + error;
+  } finally {
+    hideLoader(); // Hide loader after processing
+  }
+}
 </script>
 
     <!-- run query / reset button script -->
     <script>
-document.getElementById("submit-btn").addEventListener("click", function () {
-    document.querySelector("textarea[name='sql_query']").setAttribute("required", "required");
-});
+$(document).ready(function () {
+    // Intercept form submit for "Run Query"
+    $("#sql-query-form").on("submit", function (e) {
+        showLoader();
+        e.preventDefault();
 
-document.getElementById("reset-btn").addEventListener("click", function () {
-    document.querySelector("textarea[name='sql_query']").removeAttribute("required");
+        const action = document.activeElement.value; // "submit" or "reset"
+        const query = $("#sql_query").val();
+
+        $.ajax({
+            url: "/custom",
+            type: "POST",
+            data: {
+                sql_query: query,
+                action: action
+            },
+            success: function () {
+                // After query is accepted, refresh the DataTable
+                rebuildCustomDataTable();
+            },
+            error: function (xhr) {
+                alert("Failed to submit SQL query: " + 
+                     (xhr.responseJSON?.error || "Server error"));
+                hideLoader(); // Ensure loader hides on error
+            }
+        });
+    });
+
+    // Initial table build on page load
+    rebuildCustomDataTable();
+
+    function rebuildCustomDataTable() {
+        showLoader();
+        $.ajax({
+            url: "/api/custom_query_data",
+            type: "POST",
+            data: { draw: 1, start: 0, length: 10 },
+            success: function (response) {
+                if (response.columns && response.columns.length > 0) {
+                    // Inject table headers
+                    let headerRow = '';
+                    response.columns.forEach(col => {
+                        headerRow += `<th>${col}</th>`;
+                    });
+                    $("#custom-table-headers").html(headerRow);
+
+                    // Destroy old DataTable (if exists)
+                    if ($.fn.DataTable.isDataTable("#custom-data-table")) {
+                        $('#custom-data-table').DataTable().destroy();
+                        $('#custom-data-table').empty(); // clear previous structure
+                        $('#custom-data-table').append('<thead><tr id="custom-table-headers"></tr></thead>'); // rebuild structure
+                        $("#custom-table-headers").html(headerRow); // re-apply headers
+                    }
+
+                    // Build column definitions
+                    let columnsDef = response.columns.map(col => ({ data: col }));
+
+                    // Reinitialize DataTable
+                    $('#custom-data-table').DataTable({
+                        serverSide: true,
+                        processing: true,
+                        ajax: {
+                            url: "/api/custom_query_data",
+                            type: "POST"
+                        },
+                        columns: columnsDef,
+                        scrollX: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50, 100],
+                        fixedHeader: true,
+                        initComplete: hideLoader()
+                    });
+                } else {
+                    $("#custom-data-table").html("<p style='color:red;'>No columns returned.</p>");
+                    hideLoader();
+                }
+            },
+            error: function () {
+                $("#custom-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+                hideLoader();
+            }
+        });
+    }
 });
 </script>
 
@@ -87,19 +291,51 @@ document.getElementById("reset-btn").addEventListener("click", function () {
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('.data-table').DataTable({
-            paging: true,
-            searching: true,
-            ordering: true,
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            scrollX: true,
-            fixedHeader: true
-        });
+$(document).ready(function () {
+    // First fetch to get column names
+    $.ajax({
+        url: "/api/custom_query_data",
+        type: "POST",
+        data: { draw: 1, start: 0, length: 10 },
+        success: function (response) {
+            if (response.columns && response.columns.length > 0) {
+                // Inject table headers
+                let headerRow = '';
+                response.columns.forEach(col => {
+                    headerRow += `<th>${col}</th>`;
+                });
+                $("#custom-table-headers").html(headerRow);
+
+                // Build column definitions
+                let columnsDef = response.columns.map(col => ({ data: col }));
+
+                // Initialize DataTable
+                $('#custom-data-table').DataTable({
+                    serverSide: true,
+                    processing: true,
+                    ajax: {
+                        url: "/api/custom_query_data",
+                        type: "POST"
+                    },
+                    columns: columnsDef,
+                    scrollX: true,
+                    pageLength: 10,
+                    lengthMenu: [5, 10, 25, 50, 100],
+                    fixedHeader: true
+                });
+            } else {
+                $("#custom-data-table").html("<p style='color:red;'>No columns returned. Check SQL syntax</p>");
+            }
+        },
+        error: function () {
+            $("#custom-data-table").html("<p style='color:red;'>Failed to load data.</p>");
+        }
     });
+});
 </script>
 
 <!-- Modal Popup Script -->
@@ -116,6 +352,174 @@ window.addEventListener("click", function (event) {
         modal.style.display = "none";
     }
 });
+</script>
+
+<!-- Chart Modal Script -->
+<script>
+const chartModal = document.getElementById("chart-modal");
+const openModalBtn = document.getElementById("open-chart-modal-btn");
+const closeModalBtn = document.querySelector(".close-chart-modal-btn");
+const chartForm = document.getElementById("chart-form");
+let chartInstance = null;
+
+openModalBtn.onclick = function () {
+    chartModal.style.display = "block";
+    // Fetch column names for form options
+   fetch("/api/custom_query_data", {
+    method: "POST",
+    body: new URLSearchParams({ draw: 1, start: 0, length: 1 })
+})
+.then(res => res.json())
+.then(data => {
+    const xAxisSelect = document.getElementById("x_axis");
+    const aggColSelect = document.getElementById("agg_col");
+    xAxisSelect.innerHTML = "";
+    aggColSelect.innerHTML = "";
+
+    data.columns.forEach(col => {
+        xAxisSelect.innerHTML += `<option value="${col}">${col}</option>`;
+        aggColSelect.innerHTML += `<option value="${col}">${col}</option>`;
+    });
+});
+};
+
+closeModalBtn.onclick = function () {
+    chartModal.style.display = "none";
+};
+
+window.onclick = function (event) {
+    if (event.target == chartModal) {
+        chartModal.style.display = "none";
+    }
+};
+
+// Show mixed type options
+document.getElementById("chart_type").addEventListener("change", function () {
+  const isMixed = this.value === "mixed";
+  document.getElementById("mixed-type-wrapper").style.display = isMixed ? "block" : "none";
+});
+
+chartForm.onsubmit = function (e) {
+  e.preventDefault();
+  const chartType = document.getElementById("chart_type").value;
+  const xCol = document.getElementById("x_axis").value;
+  const aggFunc = document.getElementById("y_axis").value;
+  const aggCol = document.getElementById("agg_col").value;
+  const mixed1 = document.getElementById("mixed_chart_type_1")?.value;
+  const mixed2 = document.getElementById("mixed_chart_type_2")?.value;
+
+  fetch("/api/generate_chartjs_data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chart_type: chartType,
+      x_axis: xCol,
+      agg_func: aggFunc,
+      agg_col: aggCol,
+      mixed_type_1: mixed1,
+      mixed_type_2: mixed2
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      const ctx = document.getElementById("chartjs-canvas").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, data);
+    })
+    .catch(err => {
+      alert("Failed to generate chart: " + err);
+    });
+};
+
+document.getElementById("y_axis").addEventListener("change", function () {
+    const aggFunc = this.value;
+    const aggColWrapper = document.getElementById("agg-col-wrapper");
+
+    if (aggFunc === "sum") {
+        aggColWrapper.style.display = "block";
+    } else {
+        aggColWrapper.style.display = "none";
+    }
+});
+
+// Saved Queries Modal
+function openQueryModal() {
+    document.getElementById("queryModal").style.display = "block";
+
+    // reset form fields
+    document.getElementById("save-query-form").reset();
+}
+function closeQueryModal() {
+    document.getElementById("queryModal").style.display = "none";
+}
+window.onclick = function(event) {
+    const modal = document.getElementById("queryModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+function openEditorFromDataset(button) {
+    const id = button.dataset.id;
+    const label = button.dataset.label;
+    const sql_query = decodeURIComponent(button.dataset.sql);
+    const chart_code = decodeURIComponent(button.dataset.chart);
+
+    openQueryModal();
+    document.querySelector("#edit-query-id").value = id;
+    document.querySelector("#save-query-form input[name='label']").value = label;
+    document.querySelector("#save-query-form textarea[name='sql_query']").value = sql_query;
+}
+
+function loadSavedQueries() {
+    fetch('/api/saved_queries')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("saved-queries-container");
+            container.innerHTML = "";
+            data.forEach(q => {
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/custom";
+                form.className = "quick-form";
+                form.innerHTML = `
+                    <input type="hidden" name="sql_query" value="${encodeURIComponent(q.sql_query)}">
+                    <input type="hidden" name="action" value="submit">
+                    <button type="submit" class="query-button">${q.label}</button>
+                    <button type="button" class="edit-button" data-id="${q.id}" data-label="${q.label}" data-sql="${encodeURIComponent(q.sql_query)}" data-chart="${encodeURIComponent(q.chart_code)}" onclick="openEditorFromDataset(this)">✏️ Edit</button>
+                    <button type="button" class="delete-button" style="margin-bottom: 10px" onclick="deleteQuery(${q.id})">Delete</button>
+                `;
+                container.appendChild(form);
+            });
+        });
+}
+
+function deleteQuery(id) {
+    fetch(`/api/saved_queries/${id}`, { method: 'DELETE' })
+        .then(() => loadSavedQueries());
+}
+
+document.getElementById("save-query-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const payload = Object.fromEntries(formData.entries());
+
+    const isEdit = payload.id && payload.id.trim() !== "";
+    const method = isEdit ? "PATCH" : "POST";
+    const url = isEdit ? `/api/saved_queries/${payload.id}` : `/api/saved_queries`;
+
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    }).then(() => {
+        e.target.reset();
+        document.querySelector("#edit-query-id").value = "";
+        loadSavedQueries();
+    });
+});
+
+document.addEventListener("DOMContentLoaded", loadSavedQueries);
 </script>
 </body>
 </html>

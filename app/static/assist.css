@@ -1,44 +1,114 @@
-
 input[type="date"] {
-    background-color: #000;
-    color: #0f0;
-    border: 1px solid #444;
-    padding: 5px;
-    width: 100px;
-    margin: 10px;
-    display: inline-flex;
+    background-color: #1e1e2f;
+    color: #00ffcc;
+    border: 1px solid #333;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 120px;
+    margin: 10px 5px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
 
+input[type="date"]:focus {
+    outline: none;
+    border-color: #00e0e0;
 }
 
 .quick-queries .query-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .query-button {
-    background-color: cyan;
-    color: black;
-    font-weight: bold;
-    border: none;
-    padding: 10px 15px;
+    background-color: #1b64ef;
+    color: white;
+    font-size: 13px;
+    border: 1px solid #555;
+    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .query-button:hover {
-    background-color: #00e0e0;
+    background-color: #154bcc;
 }
 
 .edit-button {
-    background-color: #333;
+    background-color: #2a2a3d;
+    color: #ffffff;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+    background-color: #3c3c5a;
+}
+
+.delete-button {
+    background-color: #e02224; 
     color: white;
-    border: 1px solid #777;
-    padding: 8px 10px;
-    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    font-weight: bold;
     cursor: pointer;
 }
 
+.delete-button:hover {
+    background-color: #c0181d;
+}
 
+/* dashboard charts */
+#charts-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Hover lift effect */
+.chart:hover {
+    transform: translateY(-5px); /* lift up slightly */
+}
+
+.chart-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.chart.half-width {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    flex: 1 1 calc(50% - 20px);
+    min-width: 300px; /* fallback for narrow screens */
+    height: 400px;
+}
+
+.chart.full-width {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    flex: 1 1 100%;
+    height: 400px;
+}
+
+.chart.quarter-width {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    flex: 1 1 calc(25% - 20px);
+    min-width: 200px; /* fallback for narrow screens */
+    height: 400px;
+}
+
+.chart.three-quarters-width {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    flex: 1 1 calc(75% - 20px);
+    min-width: 300px; /* fallback for narrow screens */
+    height: 400px;
+}

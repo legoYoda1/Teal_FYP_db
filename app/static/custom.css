@@ -1,3 +1,20 @@
+textarea {
+    width: 80%;
+    height: 100px;
+    background-color: #202938;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    border-radius: 6px;
+}
+
+textarea::placeholder {
+    color: #ccc;
+    opacity: 1;
+}
+
 #legend-btn {
   position: absolute;
   top: 221px;
@@ -9,6 +26,33 @@
 }
 
 #legend-btn:hover {
-  color: #0f0;
+  color: #154bcc;
+  text-decoration: none;
   cursor: pointer;
+}
+
+#prompt-input {
+    width: 40%;
+    height: 20px;
+    background-color: #202938;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    border-radius: 6px;
+}
+
+.close-chart-modal-btn {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.help-tooltip {
+  cursor: help;
+  font-size: 14px;
+  color: #007BFF;
+  margin-left: 6px;
 }

@@ -2,37 +2,40 @@
 <html>
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assist.css') }}">
-    <!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 </head>
 <body>
     <h1>Historical Report Dashboard</h1>
     <div class="top-right">
-        <a href="/" class="nav-button">home</a>
+        <a href="/" class="nav-button">Home</a>
     </div>
-    <form method="POST" style="margin-top: 20px;  margin-bottom: 50px;">
-         <!-- Time Interval Dropdown -->
-    <label for="time_interval">Time Interval:</label>
-    <select name="time_interval" id="time_interval" onchange="toggleDateRange(this.value)">
-        <option value="">-- All --</option>
-        <option value="last_7_days">Last 7 Days</option>
-        <option value="last_30_days">Last 30 Days</option>
-        <option value="this_month">This Month</option>
-        <option value="custom">Custom Range</option>
-    </select>
-
-    <!-- Custom Date Range -->
-    <div id="date-range-section" style="display: none;">
-        <label for="start_date">Start Date:</label>
-        <input type="date" name="start_date" id="start_date">
-
-        <label for="end_date">End Date:</label>
-        <input type="date" name="end_date" id="end_date">
+    <div class="top-left">
+        <img src="{{ url_for('static', filename='company_logo.png') }}" id="logo">
     </div>
-    
+
+    <form id="filter-form" style="margin-top: 20px; margin-bottom: 50px;">
+        <label for="time_interval">Time Interval:</label>
+        <select name="time_interval" id="time_interval" onchange="toggleDateRange(this.value)">
+            <option value="">-- All --</option>
+            <option value="last_7_days">Last 7 Days</option>
+            <option value="last_30_days">Last 30 Days</option>
+            <option value="this_month">This Month</option>
+            <option value="custom">Custom Range</option>
+        </select>
+
+        <div id="date-range-section" style="display: none;">
+            <label for="start_date">Start Date:</label>
+            <input type="date" name="start_date" id="start_date">
+
+            <label for="end_date">End Date:</label>
+            <input type="date" name="end_date" id="end_date">
+        </div>
+
         <label for="repeated_defect">Repeated Defect:</label>
         <select name="repeated_defect" id="repeated_defect">
             <option value="">-- All --</option>
@@ -48,171 +51,187 @@
             <option value="SE">SE</option>
             <option value="SW">SW</option>
         </select>
-    
+
         <br><br>
-        <button type="submit">Filter Reports</button>
+        <button type="submit" style="background-color: #e02224;">Filter Reports</button>
     </form>
-
-    <label style="font-size: 1.2em; font-weight: bold;">Quick Queries:</label>
-    <div class="quick-queries" style="display: flexbox;">
-
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <button type="submit" class="query-button">Most Common Defect</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT cause_of_defect, COUNT(*) AS count FROM report_fact GROUP BY cause_of_defect ORDER BY count DESC LIMIT 1`)">✏️ Edit</button>
+    
+    <div id="stats-summary" class="stats-flex">
+    <div class="stat-card fade-in">
+        <h3>Total Defects</h3>
+        <p><span id="total-defects">0</span></p>
     </div>
-
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT * FROM report_fact WHERE repeated_defect = 1">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <button type="submit" class="query-button">Repeated Defects</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT * FROM report_fact WHERE repeated_defect = 1`)">✏️ Edit</button>
+    <div class="stat-card fade-in">
+        <h3>Most Common Defect</h3>
+        <p id="common-defect">--</p>
     </div>
+    <div class="stat-card fade-in">
+    <h3>Defect Hotspot</h3>
+    <p id="hotspot">--</p>
+</div>
+</div>
 
-    <div class="query-row" style="display: inline-flex;">
-        <form method="POST" class="quick-form">
-            <input type="hidden" name="editable_query" value="SELECT location_id, COUNT(*) AS defect_count FROM report_fact GROUP BY location_id ORDER BY defect_count DESC;">
-            <!-- Include filter values -->
-            <input type="hidden" name="time_interval" id="form_time_interval">
-            <input type="hidden" name="start_date" id="form_start_date">
-            <input type="hidden" name="end_date" id="form_end_date">
-            <input type="hidden" name="repeated_defect" id="form_repeated_defect">
-            <button type="submit" class="query-button">Defect Location Frequency</button>
-        </form>
-        <button class="edit-button" style="margin-right: 5px;" onclick="openEditor(`SELECT location_id, COUNT(*) AS defect_count FROM report_fact GROUP BY location_id ORDER BY defect_count DESC;`)">✏️ Edit</button>
+    <div id="charts-container">
+    <div class="chart-row">
+        <div class="chart half-width" id="pie-chart"></div>
+        <div class="chart half-width" id="bar-chart"></div>
+    </div>
+    <div class="chart-row">
+        <div class="chart full-width" id="timeseries-chart"></div>
     </div>
 </div>
 
-<!-- Modal -->
-<div id="editorModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeEditor()">&times;</span>
-        <form method="POST">
-            <label for="editable_query">Edit SQL Query:</label><br>
-            <textarea name="editable_query" id="editable_query_input" rows="4" style="width: 100%; font-family: monospace;"></textarea>
-            <br><br>
-            <button type="submit" class="query-button">Run Edited Query</button>
-        </form>
-    </div>
-</div>
-
-
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% endif %}
-
-    <div class="table-container">
-        {{ table|safe }}
+    <div id="loader" class="loader-overlay">
+        <div class="spinner"></div>
     </div>
 
-    <div class="chart-container">
-        <input type="hidden" id="final-sql-query" value="{{ final_query }}">
-        <button id="show-charts-btn">Show Charts</button>
-        <h2 id="chart-title"></h2>
-        <div class="chart" id="chart-div"></div>
-    </div>
-
-    <!-- Show Charts Button Script -->
-     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
-document.getElementById("show-charts-btn").addEventListener("click", function () {
-    const query = document.getElementById("final-sql-query").value;
+    function toggleDateRange(value) {
+        const section = document.getElementById("date-range-section");
+        section.style.display = value === "custom" ? "block" : "none";
+    }
 
-    fetch("/get_charts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sql_query: query })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById("chart-title").innerText = data.title;
-            Plotly.newPlot("chart-div", data.chart.data, data.chart.layout);
-        } else {
-            document.getElementById("chart-div").innerHTML = "<span style='color:red'>" + data.error + "</span>";
-        }
-    })
-    .catch(error => {
-        document.getElementById("chart-div").innerHTML = "<span style='color:red'>Request failed: " + error + "</span>";
+    function showLoader() {
+        document.getElementById("loader").style.display = "flex";
+    }
+    function hideLoader() {
+        document.getElementById("loader").style.display = "none";
+    }
+
+    function loadPlotlyCharts() {
+        showLoader();
+        $.ajax({
+            url: "/api/assist_query_data",
+            type: "POST",
+            data: {
+                time_interval: $("#time_interval").val(),
+                start_date: $("#start_date").val(),
+                end_date: $("#end_date").val(),
+                repeated_defect: $("#repeated_defect").val(),
+                zone: $("#zone").val()
+            },
+            success: function (response) {
+                hideLoader();
+                renderPieChart(response.pie_data);
+                renderBarChart(response.bar_data);
+                renderTimeSeriesChart(response.timeseries_data);
+                animateCount("total-defects", response.total_defects);
+                $("#common-defect").text(response.most_common_defect || "N/A");
+            },
+            error: function (err) {
+                hideLoader();
+                alert("Failed to load data.");
+            }
+        });
+    }
+
+    function getDarkLayout(title) {
+    return {
+        title: { text: title, font: { color: '#ffffff' } },
+        paper_bgcolor: '#1e1e2f',
+        plot_bgcolor: '#1e1e2f',
+        font: { color: '#ffffff' },
+        xaxis: { color: '#ffffff' },
+        yaxis: { color: '#ffffff' },
+        legend: { font: { color: '#ffffff' } }
+    };
+}
+
+const brandColors = [
+    '#1b64ef', // primary blue
+    '#00c7b7', // teal
+    '#ffb547', // amber
+    '#e94f37', // red-orange
+    '#a855f7', // purple
+    '#2dd36f'  // green
+];
+
+function renderPieChart(data) {
+    const trace = {
+        labels: data.map(d => d.inspector_name),
+        values: data.map(d => d.count),
+        type: 'pie',
+        marker: { colors: brandColors },
+        textfont: { color: '#ffffff' }
+    };
+    Plotly.newPlot('pie-chart', [trace], getDarkLayout('Reports by Inspector'));
+}
+
+function renderBarChart(data) {
+    const trace = {
+        x: data.map(d => d.cause_of_defect),
+        y: data.map(d => d.count),
+        type: 'bar',
+        marker: { color: brandColors } // consistent blue bars
+    };
+    Plotly.newPlot('bar-chart', [trace], getDarkLayout('Reports by Cause of Defect'));
+}
+
+function renderTimeSeriesChart(data) {
+    const traces = [];
+
+    const grouped = {};
+    data.forEach(d => {
+        if (!grouped[d.cause_of_defect]) grouped[d.cause_of_defect] = [];
+        grouped[d.cause_of_defect].push({ date: d.date_key, count: d.count });
+    });
+
+    let colorIndex = 0;
+    for (const [cause, values] of Object.entries(grouped)) {
+        traces.push({
+            x: values.map(v => {
+    const dateStr = v.date.toString();
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    return `${year}-${month}-${day}`; // ISO format YYYY-MM-DD
+}),
+            y: values.map(v => v.count),
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: cause,
+            line: { color: brandColors[colorIndex % brandColors.length] }
+        });
+        colorIndex++;
+    }
+
+    Plotly.newPlot('timeseries-chart', traces, getDarkLayout('Reports Over Time by Cause of Defect'));
+}
+
+    $(document).ready(function () {
+    // Load charts immediately on page load
+    loadPlotlyCharts();
+
+    // When the filter form is submitted
+    $("#filter-form").on("submit", function (e) {
+        e.preventDefault(); // Stop page refresh
+        loadPlotlyCharts(); // Reload charts with filters
     });
 });
 </script>
 
 
-    <!-- Custom date range toggle script -->
+<!-- defect count animator script -->
 <script>
-    function toggleDateRange(value) {
-        const dateSection = document.getElementById('date-range-section');
-        if (value === 'custom') {
-            dateSection.style.display = 'block';
-        } else {
-            dateSection.style.display = 'none';
+function animateCount(id, endValue, duration = 1) {
+    const el = document.getElementById(id);
+    const startValue = 0;
+    const range = endValue - startValue;
+    let startTime = null;
+
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        const percent = Math.min(progress / duration, 1);
+        const current = Math.floor(percent * range);
+        el.textContent = current.toLocaleString();
+        if (percent < 1) {
+            window.requestAnimationFrame(step);
         }
     }
-</script>    
 
-    <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $('.data-table').DataTable({
-            paging: true,
-            searching: true,
-            ordering: true,
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            scrollX: true,
-            fixedHeader: true
-        });
-    });
-</script>
-
-<!-- Editable query Script -->
-<script>
-    function openEditor(queryText) {
-        const modal = document.getElementById("editorModal");
-        document.getElementById("editable_query_input").value = queryText;
-        modal.style.display = "block";
-    }
-
-    function closeEditor() {
-        document.getElementById("editorModal").style.display = "none";
-    }
-
-    // Optional: Close when clicking outside modal
-    window.onclick = function(event) {
-        const modal = document.getElementById("editorModal");
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    }
-</script>
-
-<script>
-    document.querySelectorAll(".quick-form").forEach(form => {
-        form.addEventListener("submit", function () {
-            form.querySelector("#form_time_interval").value = document.querySelector("#time_interval").value;
-            form.querySelector("#form_start_date").value = document.querySelector("#start_date").value;
-            form.querySelector("#form_end_date").value = document.querySelector("#end_date").value;
-            form.querySelector("#form_repeated_defect").value = document.querySelector("#repeated_defect").value;
-        });
-    });
+    window.requestAnimationFrame(step);
+}
 </script>
 </body>
 </html>

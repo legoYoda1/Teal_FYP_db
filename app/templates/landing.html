@@ -2,19 +2,75 @@
 <html>
 <head>
     <title>Historical Report Dashboard</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
 </head>
 <body>
-    <h1 id="page-title">Welcome</h1>
-    <div class="top-left">
-        <a href="/report_upload" class="report-button">Upload Report</a>
+    <h1 id="page-title">Historical Report Dashboard</h1>
+    <div id="stats-summary" class="stats-flex">
+    <div class="stat-card fade-in">
+        <h3>Total Defects</h3>
+        <p><span id="total-defects">0</span></p>
     </div>
+    <div class="stat-card fade-in">
+        <h3>Most Common Defect</h3>
+        <p id="common-defect">--</p>
+    </div>
+    <div class="stat-card fade-in">
+    <h3>Defect Hotspot</h3>
+    <p id="hotspot">--</p>
+</div>
+</div>
+    <div class="top-right">
+        <a href="http://127.0.0.1:5001/" class="report-button">Upload Report</a>
+    </div>
+    <div class="top-left"><img src="static\company_logo.png" id="logo"></div>
 
     <div class="navbar">
         <h2>Choose Dashboard Style</h3>
-        <a href="/assist" class="nav-button">assisted mode</a>
-        <a href="/custom" class="nav-button">custom mode</a>
+        <a href="/assist" class="nav-button">Chart Dashboard</a>
+        <a href="/custom" class="nav-button">Tabular Dashboard</a>
     </div>
+
+    <script>
+function animateCount(id, endValue, duration = 1000) {
+    const el = document.getElementById(id);
+    const startValue = 0;
+    const range = endValue - startValue;
+    let startTime = null;
+
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        const percent = Math.min(progress / duration, 1);
+        const current = Math.floor(percent * range);
+        el.textContent = current.toLocaleString();
+        if (percent < 1) {
+            window.requestAnimationFrame(step);
+        }
+    }
+
+    window.requestAnimationFrame(step);
+}
+
+fetch('/api/overview_stats')
+    .then(response => response.json())
+    .then(data => {
+        animateCount("total-defects", data.total_defects);
+        document.getElementById("common-defect").textContent = data.most_common_defect;
+
+        const hotspot = data.hotspot;
+const hotspotItem = document.getElementById("hotspot");
+if (hotspot && hotspot.zone) {
+    hotspotItem.textContent = `Zone ${hotspot.zone}`;
+} else {
+    hotspotItem.textContent = "--";
+}
+    })
+    .catch(err => {
+        console.error(err);
+    });
+</script>
 </body>
 </html>

@@ -61,7 +61,7 @@ def overview_stats():
 
 # ==== CUSTOM DASHBOARD ROUTES ====
 
-@bp.route("/custom", methods=["GET", "POST"])
+@bp.route("/table", methods=["GET", "POST"])
 def custom():
     error = None
     query = session.get("user_query", "SELECT * FROM report_fact").strip().rstrip(';')
@@ -344,7 +344,7 @@ def delete_query(id):
 
 # ==== ASSIST DASHBOARD ROUTES ====
 
-@bp.route("/assist", methods=["GET", "POST"])
+@bp.route("/charts", methods=["GET", "POST"])
 def assist():
     error = None
     if request.method == "POST":

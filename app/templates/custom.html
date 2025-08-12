@@ -202,88 +202,55 @@ function hideLoader() {
     <!-- run query / reset button script -->
     <script>
 $(document).ready(function () {
-    // Intercept form submit for "Run Query"
-    $("#sql-query-form").on("submit", function (e) {
-        showLoader();
-        e.preventDefault();
+    // Initialize DataTable with server-side processing
+    const table = $('#custom-data-table').DataTable({
+        serverSide: true,
+        processing: true,
+        ajax: {
+            url: "/api/custom_query_data",
+            type: "POST"
+        },
+        columns: [], // Empty initially - will be set dynamically
+        scrollX: true,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        fixedHeader: true,
+        initComplete: function(settings, json) {
+            // Dynamically set headers after first data load
+            const api = this.api();
+            const columns = api.columns().header().toArray().map(th => th.innerHTML);
+            
+            api.columns().every(function(index) {
+                $(this.header()).html(columns[index]);
+            });
+        }
+    });
 
-        const action = document.activeElement.value; // "submit" or "reset"
+    // Handle form submission
+    $("#sql-query-form").on("submit", function(e) {
+        e.preventDefault();
+        showLoader();
+        const action = document.activeElement.value;
         const query = $("#sql_query").val();
 
         $.ajax({
-            url: "/custom",
+            url: "/table",
             type: "POST",
             data: {
                 sql_query: query,
                 action: action
             },
-            success: function () {
-                // After query is accepted, refresh the DataTable
-                rebuildCustomDataTable();
+            success: function() {
+                // Clear cache and reload table
+                table.ajax.reload();
             },
-            error: function (xhr) {
+            error: function(xhr) {
                 alert("Failed to submit SQL query: " + 
                      (xhr.responseJSON?.error || "Server error"));
-                hideLoader(); // Ensure loader hides on error
-            }
-        });
-    });
-
-    // Initial table build on page load
-    rebuildCustomDataTable();
-
-    function rebuildCustomDataTable() {
-        showLoader();
-        $.ajax({
-            url: "/api/custom_query_data",
-            type: "POST",
-            data: { draw: 1, start: 0, length: 10 },
-            success: function (response) {
-                if (response.columns && response.columns.length > 0) {
-                    // Inject table headers
-                    let headerRow = '';
-                    response.columns.forEach(col => {
-                        headerRow += `<th>${col}</th>`;
-                    });
-                    $("#custom-table-headers").html(headerRow);
-
-                    // Destroy old DataTable (if exists)
-                    if ($.fn.DataTable.isDataTable("#custom-data-table")) {
-                        $('#custom-data-table').DataTable().destroy();
-                        $('#custom-data-table').empty(); // clear previous structure
-                        $('#custom-data-table').append('<thead><tr id="custom-table-headers"></tr></thead>'); // rebuild structure
-                        $("#custom-table-headers").html(headerRow); // re-apply headers
-                    }
-
-                    // Build column definitions
-                    let columnsDef = response.columns.map(col => ({ data: col }));
-
-                    // Reinitialize DataTable
-                    $('#custom-data-table').DataTable({
-                        serverSide: true,
-                        processing: true,
-                        ajax: {
-                            url: "/api/custom_query_data",
-                            type: "POST"
-                        },
-                        columns: columnsDef,
-                        scrollX: true,
-                        pageLength: 10,
-                        lengthMenu: [5, 10, 25, 50, 100],
-                        fixedHeader: true,
-                        initComplete: hideLoader()
-                    });
-                } else {
-                    $("#custom-data-table").html("<p style='color:red;'>No columns returned.</p>");
-                    hideLoader();
-                }
-            },
-            error: function () {
-                $("#custom-data-table").html("<p style='color:red;'>Failed to load data.</p>");
                 hideLoader();
             }
         });
-    }
+    });
 });
 </script>
 
@@ -479,7 +446,7 @@ function loadSavedQueries() {
             data.forEach(q => {
                 const form = document.createElement("form");
                 form.method = "POST";
-                form.action = "/custom";
+                form.action = "/table";
                 form.className = "quick-form";
                 form.innerHTML = `
                     <input type="hidden" name="sql_query" value="${encodeURIComponent(q.sql_query)}">

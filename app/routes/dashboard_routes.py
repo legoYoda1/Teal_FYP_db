@@ -44,22 +44,22 @@ def overview_stats():
         """)).mappings().fetchone()
         stats["most_common_defect"] = most_common_row["cause_of_defect"] if most_common_row else "N/A"
 
-       # hotspot_row = conn.execute(text("""
-        #    SELECT l.zone, COUNT(*) as count
-         #   FROM report_fact r
-          #  JOIN location_dim l ON r.location_key = l.location_id
-           # GROUP BY l.zone
-            #ORDER BY count DESC
-            #LIMIT 1
-        #""")).mappings().fetchone()
-        #stats["hotspot"] = hotspot_row if hotspot_row else {}
+        inspector_row = conn.execute(text("""
+            SELECT i.inspector_name AS iname, r.inspector_key, COUNT(r.report_fact_id) AS count
+            FROM report_fact as r JOIN inspector_dim as i
+            ON r.inspector_key = i.inspector_id
+            GROUP BY r.inspector_key, i.inspector_name
+            ORDER BY count DESC
+            LIMIT 1
+        """)).mappings().fetchone()
+        stats["inspector"] = inspector_row["iname"] if inspector_row else "N/A"
 
     # Cache the result for future requests
     cache["stats"] = stats
 
     return jsonify(stats)
 
-# ==== CUSTOM DASHBOARD ROUTES ====
+# ==== TABLE DASHBOARD ROUTES ====
 
 @bp.route("/table", methods=["GET", "POST"])
 def custom():
@@ -81,7 +81,51 @@ def custom():
             query = session["user_query"]
 
     return render_template("custom.html", query=query, error=error)
-        
+    
+
+@bp.route("/api/custom_query_data", methods=["POST"])
+def custom_query_data():
+    try:
+        draw = int(request.form.get("draw", 1))
+        start = int(request.form.get("start", 0))
+        length = int(request.form.get("length", 10))
+        base_query = session.get("user_query", "SELECT * FROM report_fact").strip().rstrip(';')
+
+        if not base_query or not base_query.strip().lower().startswith("select"):
+            return jsonify({
+                "draw": draw, "recordsTotal": 0, "recordsFiltered": 0,
+                "data": [], "columns": []
+            })
+
+
+        engine = current_app.db_engine
+        with engine.connect() as conn:
+            count_query = f"SELECT COUNT(*) FROM ({base_query}) as sub"
+            total_records = conn.execute(text(count_query)).scalar()
+
+            paginated_query = f"SELECT * FROM ({base_query}) as sub LIMIT :limit OFFSET :offset"
+            df = pd.read_sql_query(text(paginated_query), conn, params={"limit": length, "offset": start})
+
+        if "url_path" in df.columns:
+            df["report"] = df["url_path"].apply(
+                lambda x: f'<button onclick="requestViewerLink(\'{x}\')" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; font-weight:bold;">View</button>' if pd.notnull(x) else "N/A"
+            )
+            df.drop("url_path", axis=1, inplace=True)
+
+        response = {
+            "draw": draw, "recordsTotal": total_records, "recordsFiltered": total_records,
+            "data": df.to_dict(orient="records"), "columns": df.columns.tolist()
+        }
+
+        return jsonify(response)
+
+    except Exception as e:
+        return jsonify({
+            "draw": 1, "recordsTotal": 0, "recordsFiltered": 0,
+            "data": [], "columns": [], "error": str(e)
+        })
+    
+
 @bp.route("/api/get_viewer_link", methods=["POST"])
 def get_viewer_link():
     data = request.get_json()
@@ -110,53 +154,7 @@ def get_viewer_link():
             error_msg = f"Unexpected Dropbox API error: {e}"
             print("  ->", error_msg)
             return jsonify({"error": error_msg}), 500
-
-@bp.route("/api/custom_query_data", methods=["POST"])
-def custom_query_data():
-    try:
-        draw = int(request.form.get("draw", 1))
-        start = int(request.form.get("start", 0))
-        length = int(request.form.get("length", 10))
-        base_query = session.get("user_query", "SELECT * FROM report_fact").strip().rstrip(';')
-
-        if not base_query or not base_query.strip().lower().startswith("select"):
-            return jsonify({
-                "draw": draw, "recordsTotal": 0, "recordsFiltered": 0,
-                "data": [], "columns": [], "error": "No valid SELECT query in session"
-            })
-
-        cache_key = get_cache_key_from_query(base_query)
-        page_key = f"{cache_key}:{start}:{length}"
-        if page_key in query_cache:
-            return jsonify(query_cache[page_key])
-
-        engine = current_app.db_engine
-        with engine.connect() as conn:
-            count_query = f"SELECT COUNT(*) FROM ({base_query}) as sub"
-            total_records = conn.execute(text(count_query)).scalar()
-
-            paginated_query = f"SELECT * FROM ({base_query}) as sub LIMIT :limit OFFSET :offset"
-            df = pd.read_sql_query(text(paginated_query), conn, params={"limit": length, "offset": start})
-
-        if "url_path" in df.columns:
-            df["report"] = df["url_path"].apply(
-                lambda x: f'<button onclick="requestViewerLink(\'{x}\')" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; font-weight:bold;">View</button>' if pd.notnull(x) else "N/A"
-            )
-            df.drop("url_path", axis=1, inplace=True)
-
-        response = {
-            "draw": draw, "recordsTotal": total_records, "recordsFiltered": total_records,
-            "data": df.to_dict(orient="records"), "columns": df.columns.tolist()
-        }
-
-        query_cache[page_key] = response
-        return jsonify(response)
-
-    except Exception as e:
-        return jsonify({
-            "draw": 1, "recordsTotal": 0, "recordsFiltered": 0,
-            "data": [], "columns": [], "error": str(e)
-        })
+        
 
 def random_rgba():
     return f'rgba({randint(0,255)}, {randint(0,255)}, {randint(0,255)}, 0.6)'
@@ -342,18 +340,18 @@ def delete_query(id):
 
 
 
-# ==== ASSIST DASHBOARD ROUTES ====
+# ==== CHART DASHBOARD ROUTES ====
 
 @bp.route("/charts", methods=["GET", "POST"])
 def assist():
     error = None
     if request.method == "POST":
-        session["assist_query"] = "SELECT * FROM report_fact"
-        session["assist_time_interval"] = request.form.get("time_interval")
-        session["assist_start_date"] = request.form.get("start_date")
-        session["assist_end_date"] = request.form.get("end_date")
-        session["assist_repeated_defect"] = request.form.get("repeated_defect")
-        session["assist_zone"] = request.form.get("zone")
+        session["chart_query"] = "SELECT * FROM report_fact"
+        session["filter_time_interval"] = request.form.get("time_interval")
+        session["filter_start_date"] = request.form.get("start_date")
+        session["filter_end_date"] = request.form.get("end_date")
+        session["filter_repeated_defect"] = request.form.get("repeated_defect")
+        session["filter_cause_of_defect"] = request.form.get("cause_of_defect")
     return render_template("assist.html", error=error)
 
 @bp.route("/api/assist_query_data", methods=["POST"])
@@ -363,7 +361,8 @@ def assist_query_data():
         "start_date": request.form.get("start_date"),
         "end_date": request.form.get("end_date"),
         "repeated_defect": request.form.get("repeated_defect"),
-        "zone": request.form.get("zone"),
+        "cause_of_defect": request.form.get("cause_of_defect"),
+        "inspector": request.form.get("inspector")
     }
 
     where_clauses = []
@@ -394,11 +393,18 @@ def assist_query_data():
         where_clauses.append("is_repeated = :repeated_defect")
         params["repeated_defect"] = filters["repeated_defect"]
 
-    if filters["zone"]:
-        where_clauses.append("zone = :zone")
-        params["zone"] = filters["zone"]
+    if filters["cause_of_defect"]:
+        where_clauses.append("cause_of_defect LIKE :cause_of_defect")
+        params["cause_of_defect"] = filters["cause_of_defect"]
+
+    if filters["inspector"] in ("1", "2", "3"):
+        where_clauses.append("inspector_key = :inspector")
+        params["inspector"] = filters["inspector"]
 
     where_clause = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+
+    session['user_filter_query'] = f"SELECT * FROM report_fact {where_clause}"
+    session['user_filter_params'] = params
 
     pie_sql = f"""
         SELECT i.inspector_name, r.inspector_key, COUNT(r.report_fact_id) AS count
@@ -437,6 +443,15 @@ def assist_query_data():
         ORDER BY count DESC
         LIMIT 1
     """
+    inspector_sql = f"""
+            SELECT i.inspector_name AS iname, r.inspector_key, COUNT(r.report_fact_id) AS count
+            FROM report_fact as r JOIN inspector_dim as i
+            ON r.inspector_key = i.inspector_id
+            {where_clause}
+            GROUP BY r.inspector_key, i.inspector_name
+            ORDER BY count DESC
+            LIMIT 1
+        """
 
     engine = current_app.db_engine
     with engine.connect() as conn:
@@ -445,6 +460,7 @@ def assist_query_data():
         timeseries_data = [dict(row._mapping) for row in conn.execute(text(timeseries_sql), params).fetchall()]
         total_defects = conn.execute(text(totaldefects_sql), params).scalar()
         most_common_defect = conn.execute(text(commondefects_sql), params).scalar()
+        hardworking_inspector = conn.execute(text(inspector_sql), params).scalar()
 
 
     return jsonify({
@@ -452,5 +468,56 @@ def assist_query_data():
         "bar_data": bar_data,
         "timeseries_data": timeseries_data,
         "total_defects": total_defects,
-        "most_common_defect": most_common_defect if most_common_defect else "N/A"
+        "most_common_defect": most_common_defect if most_common_defect else "N/A",
+        "hardworking_inspector": hardworking_inspector if hardworking_inspector else "N/A"
     })
+
+@bp.route("/api/filter_table_data", methods=["POST"])
+def filter_table_data():
+    try:
+        draw = int(request.form.get("draw", 1))
+        start = int(request.form.get("start", 0))
+        length = int(request.form.get("length", 10))
+        user_filter_query = session.get("user_filter_query", "SELECT * FROM report_fact").strip().rstrip(';')
+        params = session.get("user_filter_params", {})
+        print(f"Filtering with query: {user_filter_query} and params: {params}")
+
+        if not user_filter_query or not user_filter_query.strip().lower().startswith("select"):
+            return jsonify({
+                "draw": draw, "recordsTotal": 0, "recordsFiltered": 0,
+                "data": [], "columns": [], "error": "No valid SELECT query in session"
+            })
+
+        
+        
+        params["limit"] = length
+        params["offset"] = start
+
+        engine = current_app.db_engine
+        with engine.connect() as conn:
+            count_query = f"SELECT COUNT(*) FROM ({user_filter_query}) as sub"
+            total_records = conn.execute(text(count_query), params).scalar()
+
+            paginated_query = f"SELECT * FROM ({user_filter_query}) as sub LIMIT :limit OFFSET :offset"
+            data = conn.execute(text(paginated_query), params)
+            df = pd.DataFrame(data.mappings().fetchall())
+
+        if "url_path" in df.columns:
+            df["report"] = df["url_path"].apply(
+                lambda x: f'<button onclick="requestViewerLink(\'{x}\')" style="padding:5px 10px; background-color:#1b64ef; color:white; border:none; border-radius:5px; font-weight:bold;">View</button>' if pd.notnull(x) else "N/A"
+            )
+            df.drop("url_path", axis=1, inplace=True)
+
+        response = {
+            "draw": draw, "recordsTotal": total_records, "recordsFiltered": total_records,
+            "data": df.to_dict(orient="records"), "columns": df.columns.tolist(), "error": None
+        }
+
+        
+        return jsonify(response)
+
+    except Exception as e:
+        return jsonify({
+            "draw": 1, "recordsTotal": 0, "recordsFiltered": 0,
+            "data": [], "columns": [], "error": str(e)
+        })

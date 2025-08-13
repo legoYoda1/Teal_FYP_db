@@ -18,8 +18,8 @@
         <p id="common-defect">--</p>
     </div>
     <div class="stat-card fade-in">
-    <h3>Defect Hotspot</h3>
-    <p id="hotspot">--</p>
+    <h3>Most Hardworking Inspector</h3>
+    <p id="hardworking-inspector">--</p>
 </div>
 </div>
     <div class="top-right">
@@ -29,8 +29,8 @@
 
     <div class="navbar">
         <h2>Choose Dashboard Style</h3>
-        <a href="/assist" class="nav-button">Chart Dashboard</a>
-        <a href="/custom" class="nav-button">Tabular Dashboard</a>
+        <a href="/charts" class="nav-button">Chart Dashboard</a>
+        <a href="/table" class="nav-button">Tabular Dashboard</a>
     </div>
 
     <script>
@@ -59,14 +59,7 @@ fetch('/api/overview_stats')
     .then(data => {
         animateCount("total-defects", data.total_defects);
         document.getElementById("common-defect").textContent = data.most_common_defect;
-
-        const hotspot = data.hotspot;
-const hotspotItem = document.getElementById("hotspot");
-if (hotspot && hotspot.zone) {
-    hotspotItem.textContent = `Zone ${hotspot.zone}`;
-} else {
-    hotspotItem.textContent = "--";
-}
+        document.getElementById("hardworking-inspector").textContent = data.inspector;
     })
     .catch(err => {
         console.error(err);

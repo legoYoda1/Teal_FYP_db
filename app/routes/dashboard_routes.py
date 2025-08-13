@@ -397,7 +397,7 @@ def assist_query_data():
         where_clauses.append("cause_of_defect LIKE :cause_of_defect")
         params["cause_of_defect"] = filters["cause_of_defect"]
 
-    if filters["inspector"] in ("1", "2", "3"):
+    if filters["inspector"] in ("1", "2", "3", "4", "5"):
         where_clauses.append("inspector_key = :inspector")
         params["inspector"] = filters["inspector"]
 

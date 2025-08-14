@@ -46,18 +46,42 @@
             <option value="0">No</option>
         </select>
 
-        <label for="cause_of_defect">Defect Cause:</label>
-        <select name="cause_of_defect" id="cause_of_defect">
-            <option value="">-- All --</option>
-            <option value="faded kerb">faded kerb</option>
-            <option value="paint spillage">paint spillage</option>
-            <option value="missing grate">missing grate</option>
-            <option value="trench">trench</option>
+
+        <label for="asset_type">Asset:</label>
+        <select name="asset_type" id="asset_type">
+            <option value="all">-- All --</option>
+            <option value="1">flexible pavement</option>
+            <option value="2">sign</option>
+            <option value="3">road marking</option>
+            <option value="4">kerb</option>
+            <option value="5">dic kerb</option>
+            <option value="6">manhole</option>
+            <option value="7">rigid pavement</option>
+            <option value="8">railing</option>
+            <option value="9">y</option>
+            <option value="10">marker post</option>
+            <option value="11">semi-rigid pavement</option>
+            <option value="12">alu railing</option>
+            <option value="13">vig</option>
+            <option value="14">divider</option>
+            <option value="15">slp</option>
+            <option value="16">crash cushion</option>
+            <option value="17">street lighting</option>
+            <option value="18">dic grating</option>
+            <option value="19">grating</option>
+            <option value="20">work in progress</option>
+            <option value="21">street name sign</option>
+            <option value="22">bollard</option>
+            <option value="23">guardrail</option>
+            <option value="24">others</option>
+            <option value="25">convex mirror</option>
+            <option value="26">kerb damaged</option>
+            <option value="27">road marking faded</option>
         </select>
 
         <label for="inspector">Inspector:</label>
         <select name="inspector" id="inspector">
-            <option value="">-- All --</option>
+            <option value="all">-- All --</option>
             <option value="1">mohd isyamuddin</option>
             <option value="2">hairi</option>
             <option value="3">zulatika</option>
@@ -76,7 +100,7 @@
         <p><span id="total-defects">0</span></p>
     </div>
     <div class="stat-card fade-in">
-        <h3>Most Common Defect</h3>
+        <h3>Most Common Asset</h3>
         <p id="common-defect">--</p>
     </div>
     <div class="stat-card fade-in">
@@ -140,7 +164,7 @@
                 start_date: $("#start_date").val(),
                 end_date: $("#end_date").val(),
                 repeated_defect: $("#repeated_defect").val(),
-                cause_of_defect: $("#cause_of_defect").val(),
+                asset_type: $("#asset_type").val(),
                 inspector: $("#inspector").val()
             },
             success: function (response) {
@@ -166,7 +190,7 @@
         plot_bgcolor: '#1e1e2f',
         font: { color: '#ffffff' },
         xaxis: { color: '#ffffff' },
-        yaxis: { color: '#ffffff' },
+        yaxis: { color: '#ffffff', title: 'Report Count' },
         legend: { font: { color: '#ffffff' } }
     };
 }
@@ -193,12 +217,12 @@ function renderPieChart(data) {
 
 function renderBarChart(data) {
     const trace = {
-        x: data.map(d => d.cause_of_defect),
+        x: data.map(d => d.aname),
         y: data.map(d => d.count),
         type: 'bar',
-        marker: { color: brandColors } // consistent blue bars
+        marker: { color: brandColors }, // consistent blue bars
     };
-    Plotly.newPlot('bar-chart', [trace], getDarkLayout('Reports by Cause of Defect'));
+    Plotly.newPlot('bar-chart', [trace], getDarkLayout('Top 10 Asset Types'));
 }
 
 function renderTimeSeriesChart(data) {
@@ -206,8 +230,8 @@ function renderTimeSeriesChart(data) {
 
     const grouped = {};
     data.forEach(d => {
-        if (!grouped[d.cause_of_defect]) grouped[d.cause_of_defect] = [];
-        grouped[d.cause_of_defect].push({ date: d.date_key, count: d.count });
+        if (!grouped[d.aname]) grouped[d.aname] = [];
+        grouped[d.aname].push({ date: d.date_key, count: d.count });
     });
 
     let colorIndex = 0;
@@ -229,7 +253,7 @@ function renderTimeSeriesChart(data) {
         colorIndex++;
     }
 
-    Plotly.newPlot('timeseries-chart', traces, getDarkLayout('Reports Over Time by Cause of Defect'));
+    Plotly.newPlot('timeseries-chart', traces, getDarkLayout('Reports Over Time'));
 }
 
 let dataTableInstance = null;

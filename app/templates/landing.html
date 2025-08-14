@@ -14,7 +14,7 @@
         <p><span id="total-defects">0</span></p>
     </div>
     <div class="stat-card fade-in">
-        <h3>Most Common Defect</h3>
+        <h3>Most Common Asset</h3>
         <p id="common-defect">--</p>
     </div>
     <div class="stat-card fade-in">
@@ -58,7 +58,7 @@ fetch('/api/overview_stats')
     .then(response => response.json())
     .then(data => {
         animateCount("total-defects", data.total_defects);
-        document.getElementById("common-defect").textContent = data.most_common_defect;
+        document.getElementById("common-defect").textContent = data.aname;
         document.getElementById("hardworking-inspector").textContent = data.inspector;
     })
     .catch(err => {

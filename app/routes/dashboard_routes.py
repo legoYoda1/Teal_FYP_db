@@ -36,13 +36,14 @@ def overview_stats():
         stats["total_defects"] = total_defects_row["count"] if total_defects_row else 0
 
         most_common_row = conn.execute(text("""
-            SELECT cause_of_defect, COUNT(*) as count
-            FROM report_fact
-            GROUP BY cause_of_defect
+            SELECT a.asset_name AS aname, r.asset_key, COUNT(r.report_fact_id) AS count
+            FROM report_fact as r JOIN asset_dim as a
+            ON r.asset_key = a.asset_id
+            GROUP BY r.asset_key, a.asset_name
             ORDER BY count DESC
             LIMIT 1
         """)).mappings().fetchone()
-        stats["most_common_defect"] = most_common_row["cause_of_defect"] if most_common_row else "N/A"
+        stats["aname"] = most_common_row["aname"] if most_common_row else "N/A"
 
         inspector_row = conn.execute(text("""
             SELECT i.inspector_name AS iname, r.inspector_key, COUNT(r.report_fact_id) AS count
@@ -344,15 +345,7 @@ def delete_query(id):
 
 @bp.route("/charts", methods=["GET", "POST"])
 def assist():
-    error = None
-    if request.method == "POST":
-        session["chart_query"] = "SELECT * FROM report_fact"
-        session["filter_time_interval"] = request.form.get("time_interval")
-        session["filter_start_date"] = request.form.get("start_date")
-        session["filter_end_date"] = request.form.get("end_date")
-        session["filter_repeated_defect"] = request.form.get("repeated_defect")
-        session["filter_cause_of_defect"] = request.form.get("cause_of_defect")
-    return render_template("assist.html", error=error)
+    return render_template("assist.html")
 
 @bp.route("/api/assist_query_data", methods=["POST"])
 def assist_query_data():
@@ -361,7 +354,7 @@ def assist_query_data():
         "start_date": request.form.get("start_date"),
         "end_date": request.form.get("end_date"),
         "repeated_defect": request.form.get("repeated_defect"),
-        "cause_of_defect": request.form.get("cause_of_defect"),
+        "asset_type": request.form.get("asset_type"),
         "inspector": request.form.get("inspector")
     }
 
@@ -393,11 +386,11 @@ def assist_query_data():
         where_clauses.append("is_repeated = :repeated_defect")
         params["repeated_defect"] = filters["repeated_defect"]
 
-    if filters["cause_of_defect"]:
-        where_clauses.append("cause_of_defect LIKE :cause_of_defect")
-        params["cause_of_defect"] = filters["cause_of_defect"]
+    if filters["asset_type"] and filters["asset_type"] != "all":
+        where_clauses.append("asset_key = :asset_type")
+        params["asset_type"] = filters["asset_type"]
 
-    if filters["inspector"] in ("1", "2", "3", "4", "5"):
+    if filters["inspector"] and filters["inspector"] != "all":
         where_clauses.append("inspector_key = :inspector")
         params["inspector"] = filters["inspector"]
 
@@ -415,17 +408,20 @@ def assist_query_data():
     """
 
     bar_sql = f"""
-        SELECT cause_of_defect, COUNT(report_fact_id) AS count
-        FROM report_fact
+        SELECT a.asset_name AS aname, r.asset_key, COUNT(r.report_fact_id) AS count
+        FROM report_fact as r JOIN asset_dim as a
+        ON r.asset_key = a.asset_id
         {where_clause}
-        GROUP BY cause_of_defect
+        GROUP BY r.asset_key, a.asset_name
+        ORDER BY count DESC
+        LIMIT 10
     """
 
     timeseries_sql = f"""
-        SELECT date_key, cause_of_defect, COUNT(report_fact_id) AS count
+        SELECT date_key, COUNT(report_fact_id) AS count
         FROM report_fact
         {where_clause}
-        GROUP BY date_key, cause_of_defect
+        GROUP BY date_key
         ORDER BY date_key
     """
 
@@ -436,10 +432,11 @@ def assist_query_data():
     """
 
     commondefects_sql = f"""
-        SELECT cause_of_defect, COUNT(report_fact_id) AS count
-        FROM report_fact
+        SELECT a.asset_name AS aname, r.asset_key, COUNT(r.report_fact_id) AS count
+        FROM report_fact as r JOIN asset_dim as a
+        ON r.asset_key = a.asset_id
         {where_clause}
-        GROUP BY cause_of_defect
+        GROUP BY r.asset_key, aname
         ORDER BY count DESC
         LIMIT 1
     """

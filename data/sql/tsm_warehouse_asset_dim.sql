@@ -26,7 +26,7 @@ CREATE TABLE `asset_dim` (
   `asset_id` int NOT NULL AUTO_INCREMENT,
   `asset_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`asset_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -35,7 +35,7 @@ CREATE TABLE `asset_dim` (
 
 LOCK TABLES `asset_dim` WRITE;
 /*!40000 ALTER TABLE `asset_dim` DISABLE KEYS */;
-INSERT INTO `asset_dim` VALUES (1,'flexible pavement'),(2,'sign'),(3,'road marking'),(4,'kerb'),(5,'dic kerb'),(6,'manhole'),(7,'rigid pavement'),(8,'railing'),(9,'y'),(10,'marker post'),(11,'semi-rigid pavement'),(12,'alu railing'),(13,'vig'),(14,'divider'),(15,'slp'),(16,'crash cushion'),(17,'street lighting'),(18,'dic grating'),(19,'grating'),(20,'work in progress'),(21,'street name sign');
+INSERT INTO `asset_dim` VALUES (1,'flexible pavement'),(2,'sign'),(3,'road marking'),(4,'kerb'),(5,'dic kerb'),(6,'manhole'),(7,'rigid pavement'),(8,'railing'),(9,'y'),(10,'marker post'),(11,'semi-rigid pavement'),(12,'alu railing'),(13,'vig'),(14,'divider'),(15,'slp'),(16,'crash cushion'),(17,'street lighting'),(18,'dic grating'),(19,'grating'),(20,'work in progress'),(21,'street name sign'),(22,'bollard'),(23,'guardrail'),(24,'others'),(25,'convex mirror'),(26,'kerb damaged'),(27,'road marking faded');
 /*!40000 ALTER TABLE `asset_dim` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -48,4 +48,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-13 15:57:44
+-- Dump completed on 2025-08-14 16:58:08

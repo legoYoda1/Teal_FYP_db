@@ -8,17 +8,18 @@
 </head>
 <body>
     <h1 id="page-title">Historical Report Dashboard</h1>
+    <h2 id="subtitle">Data Analytics Dashboard to Make Insights</h2>
     <div id="stats-summary" class="stats-flex">
     <div class="stat-card fade-in">
         <h3>Total Defects</h3>
         <p><span id="total-defects">0</span></p>
     </div>
     <div class="stat-card fade-in">
-        <h3>Most Common Defect</h3>
-        <p id="common-defect">--</p>
+        <h3>Most Common Asset</h3>
+        <p id="common-defect" style="font-size: xx-large;">--</p>
     </div>
     <div class="stat-card fade-in">
-    <h3>Most Hardworking Inspector</h3>
+    <h3>Top Inspector</h3>
     <p id="hardworking-inspector">--</p>
 </div>
 </div>
@@ -58,7 +59,7 @@ fetch('/api/overview_stats')
     .then(response => response.json())
     .then(data => {
         animateCount("total-defects", data.total_defects);
-        document.getElementById("common-defect").textContent = data.most_common_defect;
+        document.getElementById("common-defect").textContent = data.aname;
         document.getElementById("hardworking-inspector").textContent = data.inspector;
     })
     .catch(err => {

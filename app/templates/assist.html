@@ -89,6 +89,10 @@
             <option value="5">saifuddin</option>
         </select>
 
+        <!-- road name filter -->
+        <label for="road_name">Road Name:</label>
+        <input type="text" name="road_name" id="road_name" placeholder="Enter road name">
+
         <br><br>
         <button type="submit" style="background-color: #e02224;">Filter Reports</button>
     </form>
@@ -101,10 +105,10 @@
     </div>
     <div class="stat-card fade-in">
         <h3>Most Common Asset</h3>
-        <p id="common-defect">--</p>
+        <p id="common-defect" style="font-size: xx-large;">--</p>
     </div>
     <div class="stat-card fade-in">
-    <h3>Most Hardworking Inspector</h3>
+    <h3>Top Inspector</h3>
     <p id="hardworking-inspector">--</p>
 </div>
 </div>
@@ -169,7 +173,8 @@
                 end_date: $("#end_date").val(),
                 repeated_defect: $("#repeated_defect").val(),
                 asset_type: $("#asset_type").val(),
-                inspector: $("#inspector").val()
+                inspector: $("#inspector").val(),
+                road_name: $("#road_name").val()
             },
             success: function (response) {
                 hideLoader();
@@ -282,7 +287,8 @@ function renderRoadsTable(data) {
             align: 'center',
             line: { color: "#506784", width: 1 },
             fill: { color: ['#1e1e2f'] },
-            font: { family: "Arial", size: 13, color: ["white"] }
+            font: { family: "Arial", size: 13, color: ["white"] },
+            height: 22
         },
         columnwidth: [60, 200, 100]
     };

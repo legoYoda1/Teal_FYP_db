@@ -394,6 +394,11 @@ def assist_query_data():
         where_clauses.append("inspector_key = :inspector")
         params["inspector"] = filters["inspector"]
 
+    if "road_name" in request.form and request.form["road_name"]:
+        road_name = request.form["road_name"].strip()
+        where_clauses.append("location_key in (select location_id from location_dim where location_1 LIKE :road_name)")
+        params["road_name"] = f"%{road_name}%"
+
     where_clause = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
     session['user_filter_query'] = f"SELECT r.*, l.location_1  as road_name FROM report_fact AS r JOIN location_dim AS l ON r.location_key = l.location_id {where_clause}"

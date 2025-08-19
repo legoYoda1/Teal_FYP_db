@@ -396,7 +396,7 @@ def assist_query_data():
 
     where_clause = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
-    session['user_filter_query'] = f"SELECT * FROM report_fact {where_clause}"
+    session['user_filter_query'] = f"SELECT r.*, l.location_1  as road_name FROM report_fact AS r JOIN location_dim AS l ON r.location_key = l.location_id {where_clause}"
     session['user_filter_params'] = params
 
     pie_sql = f"""
@@ -441,14 +441,24 @@ def assist_query_data():
         LIMIT 1
     """
     inspector_sql = f"""
-            SELECT i.inspector_name AS iname, r.inspector_key, COUNT(r.report_fact_id) AS count
-            FROM report_fact as r JOIN inspector_dim as i
-            ON r.inspector_key = i.inspector_id
-            {where_clause}
-            GROUP BY r.inspector_key, i.inspector_name
-            ORDER BY count DESC
-            LIMIT 1
-        """
+        SELECT i.inspector_name AS iname, r.inspector_key, COUNT(r.report_fact_id) AS count
+        FROM report_fact as r JOIN inspector_dim as i
+        ON r.inspector_key = i.inspector_id
+        {where_clause}
+        GROUP BY r.inspector_key, i.inspector_name
+        ORDER BY count DESC
+        LIMIT 1
+    """
+    
+    top_roads_sql = f"""
+        SELECT l.location_1 as road_name, COUNT(*) as count 
+        FROM report_fact r JOIN location_dim l 
+        ON r.location_key = l.location_id 
+        {where_clause} 
+        GROUP BY l.location_1 
+        ORDER BY count DESC 
+        LIMIT 10
+    """
 
     engine = current_app.db_engine
     with engine.connect() as conn:
@@ -458,6 +468,7 @@ def assist_query_data():
         total_defects = conn.execute(text(totaldefects_sql), params).scalar()
         most_common_defect = conn.execute(text(commondefects_sql), params).scalar()
         hardworking_inspector = conn.execute(text(inspector_sql), params).scalar()
+        top_roads = [dict(row._mapping) for row in conn.execute(text(top_roads_sql), params).fetchall()]
 
 
     return jsonify({
@@ -466,7 +477,8 @@ def assist_query_data():
         "timeseries_data": timeseries_data,
         "total_defects": total_defects,
         "most_common_defect": most_common_defect if most_common_defect else "N/A",
-        "hardworking_inspector": hardworking_inspector if hardworking_inspector else "N/A"
+        "hardworking_inspector": hardworking_inspector if hardworking_inspector else "N/A",
+        "top_roads": top_roads if top_roads else [],
     })
 
 @bp.route("/api/filter_table_data", methods=["POST"])
@@ -475,9 +487,8 @@ def filter_table_data():
         draw = int(request.form.get("draw", 1))
         start = int(request.form.get("start", 0))
         length = int(request.form.get("length", 10))
-        user_filter_query = session.get("user_filter_query", "SELECT * FROM report_fact").strip().rstrip(';')
+        user_filter_query = session.get("user_filter_query", "SELECT r.*, l.location_1 as road_name FROM report_fact AS r JOIN location_dim AS l ON r.location_key = l.location_id").strip().rstrip(';')
         params = session.get("user_filter_params", {})
-        print(f"Filtering with query: {user_filter_query} and params: {params}")
 
         if not user_filter_query or not user_filter_query.strip().lower().startswith("select"):
             return jsonify({
@@ -497,7 +508,7 @@ def filter_table_data():
 
             paginated_query = f"SELECT * FROM ({user_filter_query}) as sub LIMIT :limit OFFSET :offset"
             data = conn.execute(text(paginated_query), params)
-            df = pd.DataFrame(data.mappings().fetchall())
+            df = pd.DataFrame(data.fetchall(), columns=data.keys())
 
         if "url_path" in df.columns:
             df["report"] = df["url_path"].apply(

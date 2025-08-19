@@ -117,6 +117,10 @@
     <div class="chart-row">
         <div class="chart full-width" id="timeseries-chart"></div>
     </div>
+    <div class="chart-row">
+        <div class="chart half-width" id="kpi-roads-table" style="height: fit-content;"></div>
+        <div class="chart half-width" id="kpi-inspectors-table">
+    </div>
 </div>
 
 <!-- filtered reports table section -->
@@ -172,6 +176,7 @@
                 renderPieChart(response.pie_data);
                 renderBarChart(response.bar_data);
                 renderTimeSeriesChart(response.timeseries_data);
+                renderRoadsTable(response.top_roads);
                 animateCount("total-defects", response.total_defects);
                 $("#common-defect").text(response.most_common_defect || "N/A");
                 $("#hardworking-inspector").text(response.hardworking_inspector || "N/A");
@@ -201,7 +206,11 @@ const brandColors = [
     '#ffb547', // amber
     '#e94f37', // red-orange
     '#a855f7', // purple
-    '#2dd36f'  // green
+    '#2dd36f',  // green
+    '#FFE5B4', // light orange
+    '#eb34c9', // pink
+    '#b6f211', // lime
+    '#3711f2', // deep blue
 ];
 
 function renderPieChart(data) {
@@ -254,6 +263,38 @@ function renderTimeSeriesChart(data) {
     }
 
     Plotly.newPlot('timeseries-chart', traces, getDarkLayout('Reports Over Time'));
+}
+
+function renderRoadsTable(data) {
+    const ranks = data.map((_, i) => i + 1);
+
+    const trace = {
+        type: 'table',
+        header: {
+            values: [['<b>Rank</b>'], ['<b>Road Name</b>'], ['<b>Total Defects</b>']],
+            align: 'center',
+            line: { width: 1, color: '#506784' },
+            fill: { color: '#1b64ef' },
+            font: { family: "Arial", size: 13, color: "white" }
+        },
+        cells: {
+            values: [ranks, data.map(d => d.road_name), data.map(d => d.count)],
+            align: 'center',
+            line: { color: "#506784", width: 1 },
+            fill: { color: ['#1e1e2f'] },
+            font: { family: "Arial", size: 13, color: ["white"] }
+        },
+        columnwidth: [60, 200, 100]
+    };
+
+    Plotly.newPlot('kpi-roads-table', [trace], {
+        paper_bgcolor: '#1e1e2f',
+        plot_bgcolor: '#1e1e2f',
+        title: {
+            text: 'Top 10 Roads with Most Defects',
+            font: { color: '#ffffff' }
+        },
+    });
 }
 
 let dataTableInstance = null;

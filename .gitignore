@@ -25,3 +25,10 @@ others\misc\dummy_report_batch.csv
 
 # Ignore the reports folder and its contents
 app/static/reports/
+
+
+# Ignore the alternate landing page files
+app/static/landing-alt.css
+app/templates/landing-alt.html
+
+dashboard_routes_box.py

@@ -104,10 +104,6 @@ def get_query_suggestions(prompt, url='http://localhost:1234/v1/chat/completions
     "model": "deepseek-coder-6.7b-instruct",
     "messages": [
         {
-            "role": "system",
-            "content": "You are a data engineer. Given a natural language prompt, generate a SQL query that retrieves the data needed to answer the question from the data warehouse. The query should be valid mySQL syntax, without any comments. Make sure to follow the table and column names as per the data warehouse schema. Data warehouse schema: Tables: date_dim(date_id PK, day, month, year), time_dim(time_id PK, minute, hour), location_dim(location_id PK, location_1, location_2, lamppost_id, road_type_1, road_type_2), asset_dim(asset_id PK, asset_name), supervisor_dim(supervisor_id PK, supervisor_name), inspector_dim(inspector_id PK, name), report_fact(report_id PK, ref_no, date_key → date_dim.date_id, time_key → time_dim.time_id, location_key → location_dim.location_id, asset_key → asset_dim.asset_id, supervisor_key → supervisor_dim.supervisor_id, inspector_key → inspector_dim.inspector_id, is_repeated, descr, quantity, measurement, cause_of_defect, recc, url_path, region, inspector_code, inspection_week, inspection_code)."
-        },
-        {
             "role": "user",
             "content": prompt
         }
